@@ -1,0 +1,7 @@
+[project]
+name = "sbs-ext"
+version = "0.1.0"
+description = "Extensions for Smart Book Standard (SBS)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
