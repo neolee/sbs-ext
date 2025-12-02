@@ -5,5 +5,5 @@ description = "Extensions for Smart Book Standard (SBS)"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "markdown-it-py",
+    "markdown-it-py[plugins]",
 ]

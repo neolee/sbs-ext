@@ -64,4 +64,5 @@ This document serves as a persistent context file for AI agents working on the `
 
 ## 5. Technical Context
 *   **Dependencies**: `markdown-it-py` (Python), Standard Web APIs (JS).
+*   **Plugins**: `mdit-py-plugins` (specifically `attrs`, `container`).
 *   **Testing**: All implementations must include unit tests.
