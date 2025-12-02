@@ -50,6 +50,12 @@ This document serves as a persistent context file for AI agents working on the `
     *   **Playback**: Step-through moves from SGF records (Read-only).
     *   **Interactive**: **None** (User placement of stones is explicitly out of scope).
 
+#### D. Sticky Layout
+*   **Goal**: Side-by-side view for analysis.
+*   **Syntax**: `::: sbs-sticky`.
+*   **Capabilities**:
+    *   **Layout**: Sticky positioning for the first child element.
+
 ## 4. Project Status
 *   **Date**: December 3, 2025
 *   **Phase**: **Implementation**

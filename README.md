@@ -4,7 +4,9 @@ Smart Book Standard (SBS) is a Markdown-based [specification](sbs-1.1.md) for cr
 
 This README documents the specifications for supported extensions, their input formats, example usage, and technical notes.
 
-## Chess
+## Extensions
+
+### Chess
 
 Display a chess board from a FEN string or a simple move list. The chess block can be configured to be interactive (allowing readers to play and move pieces) or rendered as a static diagram.
 
@@ -14,7 +16,7 @@ Display a chess board from a FEN string or a simple move list. The chess block c
 - `orientation` (string): `white` or `black` to set board orientation (default: `white`).
 - `size` (string or number): preferred board size (e.g., `400px`).
 
-### Usage Example
+#### Usage Example
 
 ````markdown
 ```sbs-chess
@@ -26,7 +28,7 @@ size: 480px
 ```
 ````
 
-### Technical Notes
+#### Technical Notes
 
 - If `interactive: true`, the widget should enforce legal moves and provide an undo/redo stack.
 - If `interactive: false`, disable all interactivity and just render the static position.
@@ -34,14 +36,14 @@ size: 480px
 - If no data is provided, render an initial board.
 - Default piece styles and board themes should be provided, more themes may be configurable.
 
-## Bridge
+### Bridge
 
 Display a Bridge hand/diagram. This extension targets static renderings (diagrams) only; interactive play is not supported. A common interchange format is PBN.
 
 - `format` (string): e.g., `pbn` when providing PBN data.
 - `data` (string): PBN text.
 
-### Usage Example
+#### Usage Example
 
 ````markdown
 ```sbs-bridge
@@ -52,18 +54,17 @@ data: |
 ```
 ````
 
-### Technical Notes
+#### Technical Notes
 
 - Widget should parse PBN string when provided and render a compact diagram.
 
-## Go
-
+### Go
 Display a Go board. Authors may provide SGF data for full game records. Note that this widget is for display and playback only; interactive play is not supported.
 
 - `format` (string): `sgf` when providing SGF data.
 - `data` (string): SGF content.
 
-### Usage Example
+#### Usage Example
 
 ````markdown
 ```sbs-go
@@ -73,14 +74,35 @@ data: |
 ```
 ````
 
-### Technical Notes
+#### Technical Notes
 
 - When SGF is provided, widget may offer step-through playback of moves (read-only).
 - Interactive placement of stones by the user is not required.
 - If no data is provided, render an empty board of default size.
 - Default piece styles and board themes should be provided, more themes may be configurable.
 
-## Implementation notes
+### Sticky Layout
+
+A layout container that keeps content (usually a widget) sticky on the screen while scrolling through associated text. This is particularly useful for game analysis where the board should remain visible while reading the commentary.
+
+#### Usage Example
+
+````markdown
+::: sbs-sticky
+```sbs-bridge
+...
+```
+Analysis text goes here...
+:::
+````
+
+#### Technical Notes
+
+- The container uses CSS sticky positioning.
+- The first element inside the container (typically the widget) is made sticky.
+- The subsequent content flows naturally alongside or below the sticky element depending on viewport width.
+
+## Implementation Notes
 
 During the process of this project's progression, several implementation considerations are subject to change. The following notes are intended to guide implementers of above extensions:
 
