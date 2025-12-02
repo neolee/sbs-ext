@@ -1,0 +1,71 @@
+/* 
+   SBS Analysis Layout 
+   Implements the "Sticky Widget" pattern for side-by-side analysis 
+*/
+
+.sbs-analysis-block {
+    /* Default (Mobile): Stacked layout */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 60px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 40px;
+}
+
+.sbs-visual {
+    /* Mobile: Widget comes first naturally, or we can force order */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    /* Remove background to avoid double-boxing */
+    padding: 10px 0;
+}
+
+.sbs-text {
+    font-family: "Georgia", serif; /* Serif font for better reading experience */
+    line-height: 1.8;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.sbs-text p {
+    margin-bottom: 1.5em;
+}
+
+/* Desktop / Tablet Layout */
+@media (min-width: 900px) {
+    .sbs-analysis-block {
+        display: grid;
+        /* 
+           Layout: Text takes available space (1fr), 
+           Widget takes its natural width (auto) to prevent cutoff
+        */
+        grid-template-columns: 1fr auto; 
+        gap: 40px;
+        align-items: start; /* Important for sticky to work */
+    }
+
+    .sbs-visual .sbs-bridge-widget {
+        /* Remove default margins to save horizontal space in the grid */
+        margin: 0;
+    }
+
+    .sbs-visual {
+        /* The Magic: Sticky Positioning */
+        position: sticky;
+        top: 40px; /* Stick 40px from the top of the viewport */
+        
+        /* Optional: Put widget on the right side */
+        order: 2; 
+        
+        /* Remove visual styling to avoid double-boxing */
+        padding: 0;
+        background: transparent;
+        border: none;
+    }
+
+    .sbs-text {
+        order: 1;
+    }
+}
