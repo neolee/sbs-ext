@@ -18,8 +18,10 @@ book_author: "DL4ALL"
 book_introduction: "为零基础人士准备的编程思维与实践入门教材"
 
 chapters:
+  - name: "前言"
+    path: 00/README.md
   - name: "第一章 基础篇"
-    sections:
+    chapters:
       - name: "理解编程语言"
         path: 01/01.md
       - name: "程序的基本结构"
@@ -27,26 +29,32 @@ chapters:
       - name: "理解对象与类"
         path: 01/03.md
   - name: "第二章 进阶篇"
-    sections:
+    chapters:
       - name: "函数定义再探"
         path: 02/01.md
       - name: "程序中的模块与文档"
         path: 02/02.md
       - name: "数据容器"
-        path: 02/03.md
+        chapters:
+        - name: "列表与元组"
+          path: 02/03-1.md
+        - name: "字典与集合"
+          path: 02/03-2.md
+      - name: "自定义数据类型"
+        path: 02/04.md
 ...
 ```
 
 其中：
 
-- `book_name`：书名，必须字段
-- `book_author`：作者名，可选字段，如无则会将创建本书的用户视为作者
-- `book_introduction`：简要介绍，可选字段，目前只支持纯文本
-- `chapters`：书的目录结构
-  - 分为**章** `chapter` 和**节** `section` 两级，对应书的前两级章节结构
-  - 每个**节** `section` 对应一个 `.md` 文件
-  - `chapter` 和 `section` 的 `name` 字段仅用于目录展示，不会出现在正文展示中
-  - `section` 的 `path` 字段通过相对路径引用具体的 `.md` 文件，具体目录结构和位置可由作者自行组织
+- `book_name`：书名，必须字段；
+- `book_author`：作者名，可选字段，如无则会将创建本书的用户视为作者；
+- `book_introduction`：简要介绍，可选字段，目前只支持纯文本；
+- `chapters`：书的目录结构，下面是若干**章**（`chapter`）的列表，每个 `chapter`：
+  - 必须包含 `name` 字段，代表章的标题，仅用于目录展示，不会出现在正文展示中；
+  - 可以包含 `path` 字段，代表该章对应的正文文件路径（相对路径），这代表该章没有子节；
+  - 否则，就必须包含 `chapters` 字段，代表该章下的子章节列表；
+- 每个 `path` 字段对应一个 `.md` 文件，通过相对路径引用具体的 `.md` 文件，具体目录结构和位置可由作者自行组织。
 
 ### 正文文件
 
@@ -60,60 +68,109 @@ chapters:
 
 正文中包含的可运行程序代码也可以使用这些附加资源文件。
 
-## 基于 Markdown 标准扩展的文本格式
+## SBS 语法
+
+SBS 语法基于现有 Markdown 标准并添加了扩展，具有以下特点：
 
 - 支持所有 Markdown 标准元素；
 - 兼容 CommonMark 的扩展元素。
 
-### 可扩展的自定义标签
+在此基础上，SBS 提供一致、简洁且符合 Markdown 原生习惯的三种扩展语法，分别是：
+1. **围栏代码块** *fenced code blocks*，也称为**组件块** *widget block*；
+2. **容器** *containers*；
+3. **属性** *attributes*。
 
-采用 HTML 注释语法定义自定义标签（*SBS tags*），来实现特殊的扩展功能。
+### 1. 围栏代码块 *fenced code blocks*
 
+用于嵌入富交互组件（如棋牌、图表、互动小程序等），使用带有特定语言标识符的围栏代码块，语法如下：
+````markdown
+```sbs-<component>
+<configuration/data>
+```
+````
+
+**示例** 嵌入 Bridge 牌局组件：
+````markdown
+```sbs-bridge
+[Event "World Cup"]
+[Deal "N:AKQ..."]
+```
+````
+
+### 2. 容器 *containers*
+
+用于控制内容的布局结构（如左右对照、多栏排版等），使用 `:::` 包裹的容器语法：
 ```markdown
-<!-- sbs-tagname:n1="v1",n2="v2",...  -->
+::: sbs-<layout>
+<content>
+:::
 ```
 
-将如上代码置于 Markdown 文本中，或者希望约束/修饰的 Markdown 元素之前，可以实现特殊的渲染效果或交互功能，其中：
-- 整个标签置于 HTML 注释语法 `<!--  -->` 内，确保向下兼容；
-- 最开始的标签名须以 `sbs-` 开始，避免名字空间冲突，也便于追踪和处理；
-- 标签名之后是英文冒号和可选的1或多个参数，如果没有参数则冒号可以省略；
-- 每个参数由 `name="value"` 格式表达，多个参数之间以英文逗号隔开，如果 `value` 内仅包含数字或英文字母则引号可以省略；
-- 如果是自渲染的自定义标签则可置于需要的任何位置，如果是修饰性（指改变原内容渲染或交互逻辑）的自定义标签则需要置于紧靠被修饰元素之前的独立一行。
-
-下面是 SBS-1.0 内建支持的自定义标签。
-
-#### 可在线编辑/运行的代码片段
-
-```markdown
-<!-- sbs-code -->
+**示例** 与特定文本对照浮动显示的 widget：
+````markdown
+::: sbs-sticky
+```sbs-bridge
+...
 ```
+这里是针对该牌局的分析文字...
+:::
+````
 
-置于 Markdown 标准的代码块元素之前即可，例如：
+### 3. 属性修饰 *attributes*
+
+用于对标准 Markdown 元素（如图片、代码块）进行参数修饰，使用 `{}` 包裹的属性语法：
+```markdown
+![alt](src){ key=value }
+```
 
 ````markdown
-<!-- sbs-code -->
-```python
+```lang { key=value } 
+...
+```
+````
+
+## 内建功能
+
+本节列出 SBS 内建支持的一些功能。
+
+### 可运行代码块
+
+*语法类型：属性修饰*
+
+通过给代码块添加 `{ runnable=true }` 属性来实现。
+
+**示例**
+````markdown
+```python { runnable=true }
 println("Hello world!")
 ```
 ````
 
-#### 图片对齐与缩放
+`runnable` 属性设置为 `true` 表示该代码块是可以编辑并可运行的，前提是所使用的 SLP 实现支持该语言的代码执行功能。
 
+### 图片显示属性
+
+*语法类型：属性修饰*
+
+通过给图片元素添加 `{ align=..., scale=..., width=..., height=... }` 属性来实现。
+
+**示例**
 ```markdown
-<!-- sbs-image:align=,scale=,width=,height= -->
+![beautiful pic](https://images.com/pic.jpg){ align=center, width=300 }
 ```
 
-置于 Markdown 图片元素之前即可，例如：
-
-```markdown
-<!-- sbs-image:align=,scale=,width=,height= -->
-![beautiful pic](https://images.com/pic.jpg)
-```
-
-`sbs-image` 支持一组参数（均为可选，但至少要指定其一）：
+支持的参数包括（均为可选）：
 - `align`：图片对齐，可以取值 `left` `center` `right`，分别实现图片的靠左、居中和靠右对齐；
 - `scale`：图片缩放比例，可以取大于 0 的浮点数值，为图片显示的缩放比率；
 - `width`, `height`：指定图片显示的宽和高像素（*pixel*）值，可以取大于0的整数值，注意：
   - 如果前面指定了 `scale` 参数，此二参数会被忽略；
   - 如果只指定了此二参数之一，图片会按指定的宽或高以及图片原始宽高比缩放显示；
   - 如果同时指定了此二参数，图片会按指定的宽和高像素值显示，而忽略图片的原宽高比。
+
+## 标准扩展
+
+由项目 [sbs-ext](https://github.com/neolee/sbs-ext) 提供的扩展语法，包含更多高级功能和自定义扩展。
+
+目前该项目支持的扩展语法包括：
+
+*TBD*
