@@ -16,7 +16,7 @@ Display a chess board from a FEN string or a simple move list. The chess block c
 
 **Usage example**
 
-```markdown
+````markdown
 <!-- sbs-chess -->
 ```yaml
 fen: "r1bqkbnr/pppppppp/2n5/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 0 1"
@@ -25,7 +25,7 @@ showControls: true
 orientation: white
 size: 480px
 ```
-```
+````
 
 **Technical notes**
 
@@ -44,7 +44,7 @@ Display a Bridge hand/diagram. This extension targets static renderings (diagram
 
 **Usage example**
 
-```markdown
+````markdown
 <!-- sbs-bridge -->
 ```yaml
 format: "pbn"
@@ -52,7 +52,7 @@ data: |
   [Event "Example"]
   [Deal "N:AKQJ. ..."]
 ```
-```
+````
 
 **Technical notes**
 
@@ -67,14 +67,14 @@ Display a Go board. Authors may provide SGF data for full game records. Note tha
 
 **Usage example**
 
-```markdown
+````markdown
 <!-- sbs-go -->
 ```yaml
 format: "sgf"
 data: |
   (;GM[1]FF[4]SZ[19];B[pd];W[dd];B[qp])
 ```
-```
+````
 
 **Technical notes**
 

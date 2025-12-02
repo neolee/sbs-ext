@@ -16,7 +16,14 @@ This document serves as a persistent context file for AI agents working on the `
 
 ### General Architecture
 *   **Language**: Python (>= 3.11) for the reference implementation/tooling.
+*   **Markdown Parser**: `markdown-it-py` (Primary target).
+*   **Frontend Technology**: **Web Components (Custom Elements)**.
 *   **Syntax**: Extensions use HTML comment tags (e.g., `<!-- sbs-chess -->`) followed by a code block (usually YAML) containing configuration/data.
+
+### Directory Structure
+*   `src/`: Python source code for Markdown renderer extensions.
+*   `widgets/`: Source code for Web Components.
+*   `prototype/`: Static HTML/JS prototypes for widget research and validation.
 
 ### Extension Modules
 
@@ -44,16 +51,17 @@ This document serves as a persistent context file for AI agents working on the `
     *   **Interactive**: **None** (User placement of stones is explicitly out of scope).
 
 ## 4. Project Status
-*   **Date**: December 1, 2025
-*   **Phase**: **Initialization / Specification Definition**
+*   **Date**: December 2, 2025
+*   **Phase**: **Architecture Definition / Prototyping**
 *   **Current State**:
     *   Repository initialized.
-    *   `README.md` defined with initial specifications for Chess, Bridge, and Go.
-    *   `pyproject.toml` created.
+    *   `README.md` defined with initial specifications.
+    *   Architecture confirmed: Web Components + markdown-it-py.
+    *   Directory structure created (`src`, `widgets`, `prototype`).
 *   **Immediate Next Steps**:
-    *   Finalize implementation details for the reference parsers.
-    *   Begin implementation of the Chess module (priority on data structure and FEN parsing).
+    *   Start prototyping the **Bridge** widget in `prototype/bridge`.
+    *   Implement basic PBN parsing and rendering logic.
 
 ## 5. Technical Context
-*   **Dependencies**: (To be determined, likely `python-chess` for chess logic).
+*   **Dependencies**: `markdown-it-py` (Python), Standard Web APIs (JS).
 *   **Testing**: All implementations must include unit tests.
