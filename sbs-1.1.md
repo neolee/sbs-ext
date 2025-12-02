@@ -93,7 +93,7 @@ SBS 语法基于现有 Markdown 标准并添加了扩展，具有以下特点：
 2. **容器** *containers*；
 3. **属性** *attributes*。
 
-### 1. 围栏代码块 *fenced code blocks*
+### 1. 组件块 *widget blocks*
 
 用于嵌入富交互组件（如棋牌、图表、互动小程序等），使用带有特定语言标识符的围栏代码块，语法如下：
 ````markdown
@@ -110,7 +110,7 @@ SBS 语法基于现有 Markdown 标准并添加了扩展，具有以下特点：
 ```
 ````
 
-### 2. 容器 *containers*
+### 2. 布局容器 *layout containers*
 
 用于控制内容的布局结构（如左右对照、多栏排版等），使用 `:::` 包裹的容器语法：
 ```markdown

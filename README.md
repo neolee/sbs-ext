@@ -1,6 +1,6 @@
 # Extensions for Smart Book Standard (SBS)
 
-Smart Book Standard (SBS) is a Markdown-based [specification](sbs-1.0.md) for creating interactive, media-rich digital books. This repository provides the documentation and standard reference implementation for a set of SBS extensions. These extensions enable authors to create content with specialized widgets.
+Smart Book Standard (SBS) is a Markdown-based [specification](sbs-1.1.md) for creating interactive, media-rich digital books. This repository provides the documentation and standard reference implementation for a set of SBS extensions. These extensions enable authors to create content with specialized widgets.
 
 This README documents the specifications for supported extensions, their input formats, example usage, and technical notes.
 
@@ -14,11 +14,10 @@ Display a chess board from a FEN string or a simple move list. The chess block c
 - `orientation` (string): `white` or `black` to set board orientation (default: `white`).
 - `size` (string or number): preferred board size (e.g., `400px`).
 
-**Usage example**
+### Usage Example
 
 ````markdown
-<!-- sbs-chess -->
-```yaml
+```sbs-chess
 fen: "r1bqkbnr/pppppppp/2n5/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 0 1"
 interactive: true
 showControls: true
@@ -27,7 +26,7 @@ size: 480px
 ```
 ````
 
-**Technical notes**
+### Technical Notes
 
 - If `interactive: true`, the widget should enforce legal moves and provide an undo/redo stack.
 - If `interactive: false`, disable all interactivity and just render the static position.
@@ -35,18 +34,17 @@ size: 480px
 - If no data is provided, render an initial board.
 - Default piece styles and board themes should be provided, more themes may be configurable.
 
-### Bridge
+## Bridge
 
 Display a Bridge hand/diagram. This extension targets static renderings (diagrams) only; interactive play is not supported. A common interchange format is PBN.
 
 - `format` (string): e.g., `pbn` when providing PBN data.
 - `data` (string): PBN text.
 
-**Usage example**
+### Usage Example
 
 ````markdown
-<!-- sbs-bridge -->
-```yaml
+```sbs-bridge
 format: "pbn"
 data: |
   [Event "Example"]
@@ -54,29 +52,28 @@ data: |
 ```
 ````
 
-**Technical notes**
+### Technical Notes
 
 - Widget should parse PBN string when provided and render a compact diagram.
 
-### Go
+## Go
 
 Display a Go board. Authors may provide SGF data for full game records. Note that this widget is for display and playback only; interactive play is not supported.
 
 - `format` (string): `sgf` when providing SGF data.
 - `data` (string): SGF content.
 
-**Usage example**
+### Usage Example
 
 ````markdown
-<!-- sbs-go -->
-```yaml
+```sbs-go
 format: "sgf"
 data: |
   (;GM[1]FF[4]SZ[19];B[pd];W[dd];B[qp])
 ```
 ````
 
-**Technical notes**
+### Technical Notes
 
 - When SGF is provided, widget may offer step-through playback of moves (read-only).
 - Interactive placement of stones by the user is not required.
@@ -87,7 +84,10 @@ data: |
 
 During the process of this project's progression, several implementation considerations are subject to change. The following notes are intended to guide implementers of above extensions:
 
-- The syntax uses HTML comments (e.g., `<!-- sbs-chess -->`) to tag the following code block, which contains the configuration/data (usually in YAML). This aligns with the SBS 1.0 specification for custom tags.
+- The project adopts the SBS syntax extension architecture introduced in the [SBS 1.1 spec](sbs-1.1.md):
+  - **Widget Blocks**: Use fenced code blocks with language identifiers (e.g., ` ```sbs-chess `) to embed widget configuration/data.
+  - **Layout Containers**: Use container syntax (e.g., `::: sbs-sticky`) for layout control.
+  - **Attributes**: Use inline attributes (e.g., `{ runnable=true }`) for element modification.
 - Widget implementation should:
   - validate required fields (e.g., FEN is valid);
   - better provide accessible fallbacks (e.g. static images) when interactivity is not available;

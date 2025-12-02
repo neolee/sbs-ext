@@ -18,7 +18,7 @@ This document serves as a persistent context file for AI agents working on the `
 *   **Language**: Python (>= 3.11) for the reference implementation/tooling.
 *   **Markdown Parser**: `markdown-it-py` (Primary target).
 *   **Frontend Technology**: **Web Components (Custom Elements)**.
-*   **Syntax**: Extensions use HTML comment tags (e.g., `<!-- sbs-chess -->`) followed by a code block (usually YAML) containing configuration/data.
+*   **Syntax**: Extensions use **SBS 1.1 Syntax**: Fenced Code Blocks (` ```sbs-xxx `), Containers (`::: sbs-xxx`), and Attributes (`{ key=value }`).
 
 ### Directory Structure
 *   `src/`: Python source code for Markdown renderer extensions.
@@ -51,16 +51,17 @@ This document serves as a persistent context file for AI agents working on the `
     *   **Interactive**: **None** (User placement of stones is explicitly out of scope).
 
 ## 4. Project Status
-*   **Date**: December 2, 2025
-*   **Phase**: **Architecture Definition / Prototyping**
+*   **Date**: December 3, 2025
+*   **Phase**: **Implementation**
 *   **Current State**:
     *   Repository initialized.
-    *   `README.md` defined with initial specifications.
+    *   `README.md` and `sbs-1.1.md` updated to **SBS 1.1**.
     *   Architecture confirmed: Web Components + markdown-it-py.
-    *   Directory structure created (`src`, `widgets`, `prototype`).
+    *   Directory structure created.
+    *   **Bridge Widget Prototype** complete (`prototype/bridge`) with sticky layout.
 *   **Immediate Next Steps**:
-    *   Start prototyping the **Bridge** widget in `prototype/bridge`.
-    *   Implement basic PBN parsing and rendering logic.
+    *   Implement Python Markdown extensions in `src/` (Bridge, Chess, Go).
+    *   Port JS PBN parser to Python (or find library).
 
 ## 5. Technical Context
 *   **Dependencies**: `markdown-it-py` (Python), Standard Web APIs (JS).
