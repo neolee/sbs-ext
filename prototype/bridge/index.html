@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBS Bridge Widget Prototype</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Bridge Widget Prototype</h1>
+    
+    <div style="text-align: center; margin-bottom: 20px;">
+        <label>
+            <input type="radio" name="lang" value="zh" checked> 中文
+        </label>
+        <label style="margin-left: 15px;">
+            <input type="radio" name="lang" value="en"> English
+        </label>
+    </div>
+
+    <div class="demo-section">
+        <h2>Example 1: Full Deal with Bidding</h2>
+        <div id="bridge-container-1" class="sbs-bridge-widget"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Example 2: Full Deal (No Bidding)</h2>
+        <div id="bridge-container-2" class="sbs-bridge-widget"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Example 3: Declarer and Dummy Only</h2>
+        <div id="bridge-container-3" class="sbs-bridge-widget"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Example 4: Endgame (Last 4 Cards)</h2>
+        <div id="bridge-container-4" class="sbs-bridge-widget"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Example 5: Declarer/Dummy + Lead + Auction</h2>
+        <div id="bridge-container-5" class="sbs-bridge-widget"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Example 6: Auction + Lead Hand (West)</h2>
+        <div id="bridge-container-6" class="sbs-bridge-widget"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Example 7: Auction + Lead + Lead Hand + Dummy</h2>
+        <div id="bridge-container-7" class="sbs-bridge-widget"></div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
