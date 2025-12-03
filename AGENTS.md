@@ -73,3 +73,7 @@ This document serves as a persistent context file for AI agents working on the `
 *   **Dependencies**: `markdown-it-py` (Python), Standard Web APIs (JS).
 *   **Plugins**: `mdit-py-plugins` (specifically `attrs`, `container`).
 *   **Testing**: All implementations must include unit tests.
+
+## 6. Operational Notes
+- Normally `.md` files are tracked as VS Code Notebooks. Writing to them via plain text editors overwrites the JSON notebook structure with `cells: []`, effectively blanking the file.
+- **Workflow**: always edit these files through the Notebook interface or via the `edit_notebook_file` tooling so content lands inside notebook cells. When converting HTML prototypes, recreate the full text inside markdown cells rather than pasting raw text outside the notebook envelope.
