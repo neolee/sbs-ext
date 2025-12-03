@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBS Chess Widget Prototype</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="page-header">
+        <h1>SBS Chess Widget Prototype</h1>
+        <p>This playground exercises the future `sbs-chess` extension before it is promoted into the shared widgets bundle. Each example mirrors the workflow documented in <code>README.md</code>.</p>
+        <p class="note">Phase&nbsp;1 focuses on accurate board rendering + move playback scaffolding. Interactive move entry and legality checks will layer on once visuals stabilize.</p>
+    </header>
+
+    <section class="prototype-controls">
+        <label for="board-size-control">Board size</label>
+        <input type="range" id="board-size-control" min="240" max="640" step="20" value="480">
+        <span class="value" id="board-size-value">480px</span>
+        <button type="button" id="board-size-reset">Reset</button>
+    </section>
+
+    <main>
+        <section class="demo-section">
+            <h2>Demo 1 · Starting Position (Static)</h2>
+            <p>Default configuration with the initial FEN, static orientation, and controls hidden.</p>
+            <div id="chess-demo-1" class="widget-host"></div>
+        </section>
+
+        <section class="demo-section">
+            <h2>Demo 2 · Immortal Game Highlights</h2>
+            <p>Move list provided as an array with intermediate FEN snapshots to step through a famous attacking sequence.</p>
+            <div id="chess-demo-2" class="widget-host"></div>
+        </section>
+
+        <section class="demo-section">
+            <h2>Demo 3 · Black Orientation + Compact Size</h2>
+            <p>Board rendered from a composed FEN facing Black with a reduced footprint, showing how authors can tune layout.</p>
+            <div id="chess-demo-3" class="widget-host"></div>
+        </section>
+
+        <section class="demo-section">
+            <h2>Demo 4 · Move Log Only (No Snapshots)</h2>
+            <p>Demonstrates graceful degradation when only SAN/figurine text is supplied—the board stays on the baseline FEN while the move list remains navigable.</p>
+            <div id="chess-demo-4" class="widget-host"></div>
+        </section>
+
+        <section class="demo-section">
+            <h2>Demo 5 · Minimal Board</h2>
+            <p>Only the board, pieces, and coordinate guides are visible—useful for tight layouts or inline diagrams.</p>
+            <div id="chess-demo-5" class="widget-host"></div>
+        </section>
+
+        <section class="demo-section">
+            <h2>Demo 6 · Half-Size Board</h2>
+            <p>Demonstrates the `size` parameter by rendering a full widget at 50% of the default board dimensions.</p>
+            <div id="chess-demo-6" class="widget-host"></div>
+        </section>
+    </main>
+
+    <footer class="page-footer">
+        <p>Next steps: add interactive move entry, legal move validation, undo/redo, and annotation overlays.</p>
+    </footer>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
