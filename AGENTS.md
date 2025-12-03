@@ -18,7 +18,7 @@ This document serves as a persistent context file for AI agents working on the `
 *   **Language**: Python (>= 3.11) for the reference implementation/tooling.
 *   **Markdown Parser**: `markdown-it-py` (Primary target).
 *   **Frontend Technology**: **Web Components (Custom Elements)**.
-*   **Syntax**: Extensions use **SBS 1.1 Syntax**: Fenced Code Blocks (` ```sbs-xxx `), Containers (`::: sbs-xxx`), and Attributes (`{ key=value }`).
+*   **Syntax**: Extensions use **SBS 1.1 Syntax**: Fenced Code Blocks (` ```sbs-xxx``` `), Containers (`::: sbs-xxx`), and Attributes (`{ key=value }`).
 
 ### Directory Structure
 *   `src/`: Python source code for Markdown renderer extensions.
@@ -60,14 +60,15 @@ This document serves as a persistent context file for AI agents working on the `
 *   **Date**: December 3, 2025
 *   **Phase**: **Implementation**
 *   **Current State**:
-    *   Repository initialized.
-    *   `README.md` and `sbs-1.1.md` updated to **SBS 1.1**.
-    *   Architecture confirmed: Web Components + markdown-it-py.
-    *   Directory structure created.
-    *   **Bridge Widget Prototype** complete (`prototype/bridge`) with sticky layout.
+    *   Repository initialized; `README.md` and `sbs-1.1.md` upgraded to **SBS 1.1**.
+    *   Bridge web component packaged under `widgets/bridge/` with sticky layout hooks and inline PBN parser, matching prototype behavior.
+    *   Python renderer (`sbs_renderer`) renders SBS Markdown via `markdown-it-py`, supports `sbs-bridge` + `sbs-sticky`, and exposes a tested CLI entry point.
+    *   Theme system shipped (`widgets/sbs-ext.css` plus `widgets/themes/{default,classic}.css`) with CLI `--theme` flag; layout CSS removed from Python bundle.
+    *   Sample rendering script (`render_samples.sh`) regenerates default/classic outputs in `dist/` and documents CLI usage.
 *   **Immediate Next Steps**:
-    *   Implement Python Markdown extensions in `src/` (Bridge, Chess, Go).
-    *   Port JS PBN parser to Python (or find library).
+    *   Implement Chess and Go markdown extensions on top of the renderer pipeline.
+    *   Provide guidance + tooling for author-defined themes/typography overrides.
+    *   Expand automated tests/fixtures covering widgets, themes, and CLI variants.
 
 ## 5. Technical Context
 *   **Dependencies**: `markdown-it-py` (Python), Standard Web APIs (JS).
@@ -75,5 +76,4 @@ This document serves as a persistent context file for AI agents working on the `
 *   **Testing**: All implementations must include unit tests.
 
 ## 6. Operational Notes
-- Normally `.md` files are tracked as VS Code Notebooks. Writing to them via plain text editors overwrites the JSON notebook structure with `cells: []`, effectively blanking the file.
-- **Workflow**: always edit these files through the Notebook interface or via the `edit_notebook_file` tooling so content lands inside notebook cells. When converting HTML prototypes, recreate the full text inside markdown cells rather than pasting raw text outside the notebook envelope.
+- Normally `.md` files are tracked as VS Code Notebooks. Writing to them via plain text editors overwrites the JSON notebook structure with `cells: []`, effectively blanking the file. Always edit via the Notebook UI or the `edit_notebook_file` tool to preserve structure.

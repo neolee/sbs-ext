@@ -102,6 +102,20 @@ Analysis text goes here...
 - The first element inside the container (typically the widget) is made sticky.
 - The subsequent content flows naturally alongside or below the sticky element depending on viewport width.
 
+## Python Renderer
+
+This repository ships a reference renderer (`sbs_renderer`) that converts SBS-flavored Markdown to standalone HTML. It is available as a CLI entry point once the project dependencies are installed (e.g., via `uv sync`).
+- **source**: path to the Markdown file you want to render.
+- **output**: destination HTML file.
+- `--widgets-dir`: directory containing widget bundles (JS/CSS). Defaults to `./widgets`.
+- `--theme`: visual theme name located under `widgets/themes/` (defaults to `default`).
+You can also import `SBSRenderer` from `src/sbs_renderer/renderer.py` in your own Python tooling to render strings directly.
+
+```shell
+uv run python -m sbs_renderer tests/markdown/bridge-scenarios.md dist/bridge-scenarios.html --title "Bridge Catalog" --widgets-dir "./widgets" --theme "default"
+uv run python -m sbs_renderer tests/markdown/bridge-sticky-layout.md dist/bridge-sticky-layout.html --title "Sticky Analysis" --widgets-dir "./widgets" --theme "classic"
+```
+
 ## Implementation Notes
 
 During the process of this project's progression, several implementation considerations are subject to change. The following notes are intended to guide implementers of above extensions:
