@@ -1,0 +1,51 @@
+:root {
+    color-scheme: light;
+    --sbs-font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --sbs-font-heading: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --sbs-text-color: #1f2933;
+    --sbs-muted-color: #54606e;
+    --sbs-page-bg: #ffffff;
+    --sbs-link-color: #2563eb;
+    --sbs-link-hover: #1e40af;
+    --sbs-line-height: 1.65;
+    --sbs-block-spacing: 1.4em;
+}
+
+body {
+    font-family: var(--sbs-font-body);
+    line-height: var(--sbs-line-height);
+    color: var(--sbs-text-color);
+    background: var(--sbs-page-bg);
+    margin: 0 auto;
+    max-width: 1280px;
+    padding: 40px 24px 80px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--sbs-font-heading);
+    color: var(--sbs-text-color);
+    margin-top: 2.2em;
+    margin-bottom: 0.6em;
+    line-height: 1.25;
+}
+
+p, ul, ol, blockquote {
+    margin-bottom: var(--sbs-block-spacing);
+}
+
+a {
+    color: var(--sbs-link-color);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--sbs-link-hover);
+    text-decoration: underline;
+}
+
+blockquote {
+    border-left: 4px solid rgba(37, 99, 235, 0.25);
+    padding-left: 16px;
+    color: var(--sbs-muted-color);
+    background: rgba(37, 99, 235, 0.05);
+}

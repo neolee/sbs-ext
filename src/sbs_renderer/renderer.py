@@ -22,8 +22,9 @@ class _FenceRenderer(Protocol):
 class SBSRenderer:
     """Turn SBS flavored Markdown into HTML pages."""
 
-    def __init__(self, *, widgets_dir: str = "./widgets"):
+    def __init__(self, *, widgets_dir: str = "./widgets", theme: str = "default"):
         self.widgets_dir = widgets_dir.rstrip("/")
+        self.theme = theme or "default"
         self.md = MarkdownIt("commonmark", {"linkify": True, "typographer": True})
         self.md.use(attrs_plugin)
         use_sticky(self.md)
@@ -42,6 +43,7 @@ class SBSRenderer:
         body = self.render(text)
         title_html = html.escape(title)
         css_href = f"{self.widgets_dir}/sbs-ext.css"
+        theme_href = f"{self.widgets_dir}/themes/{self.theme}.css"
         module_src = f"{self.widgets_dir}/bridge/index.js"
         html_str = dedent("""\
             <!DOCTYPE html>
@@ -51,6 +53,7 @@ class SBSRenderer:
             <meta name='viewport' content='width=device-width, initial-scale=1'>
             <title>{title_html}</title>
             <link rel='stylesheet' href='{css_href}'>
+            <link rel='stylesheet' href='{theme_href}'>
             <script type='module' src='{module_src}'></script>
             </head>
             <body>
@@ -60,6 +63,7 @@ class SBSRenderer:
         """).strip("\n").format(
             title_html=title_html,
             css_href=css_href,
+            theme_href=theme_href,
             module_src=module_src,
             body=body,
         )

@@ -21,7 +21,7 @@ def load_markdown(filename: str) -> str:
 
 class TestSBSRenderer(unittest.TestCase):
     def setUp(self) -> None:
-        self.renderer = SBSRenderer(widgets_dir="/widgets")
+        self.renderer = SBSRenderer(widgets_dir="/widgets", theme="default")
 
     def test_bridge_scenarios_render_bridge_elements(self) -> None:
         text = load_markdown("bridge-scenarios.md")
@@ -45,6 +45,7 @@ class TestSBSRenderer(unittest.TestCase):
         text = load_markdown("bridge-scenarios.md")
         doc = self.renderer.render_document(text, title="Bridge Catalog")
         self.assertIn("/widgets/sbs-ext.css", doc)
+        self.assertIn("/widgets/themes/default.css", doc)
         self.assertIn("/widgets/bridge/index.js", doc)
         self.assertIn("Bridge Catalog", doc)
 

@@ -1,0 +1,53 @@
+:root {
+    color-scheme: light;
+    --sbs-font-body: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Georgia", "Times New Roman", serif;
+    --sbs-font-heading: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    --sbs-text-color: #2b2117;
+    --sbs-muted-color: #6b5b4b;
+    --sbs-page-bg: #f8f4ec;
+    --sbs-link-color: #8b5e34;
+    --sbs-link-hover: #5c3b1d;
+    --sbs-line-height: 1.75;
+    --sbs-block-spacing: 1.6em;
+}
+
+body {
+    font-family: var(--sbs-font-body);
+    line-height: var(--sbs-line-height);
+    color: var(--sbs-text-color);
+    background: var(--sbs-page-bg);
+    margin: 0 auto;
+    max-width: 1280px;
+    padding: 48px 36px 96px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--sbs-font-heading);
+    color: var(--sbs-text-color);
+    margin-top: 2.4em;
+    margin-bottom: 0.8em;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+}
+
+p, ul, ol, blockquote {
+    margin-bottom: var(--sbs-block-spacing);
+}
+
+a {
+    color: var(--sbs-link-color);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+}
+
+a:hover {
+    color: var(--sbs-link-hover);
+}
+
+blockquote {
+    border-left: 4px solid rgba(91, 59, 29, 0.3);
+    padding-left: 18px;
+    color: var(--sbs-muted-color);
+    font-style: italic;
+    background: rgba(91, 59, 29, 0.08);
+}

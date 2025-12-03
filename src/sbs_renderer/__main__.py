@@ -15,11 +15,16 @@ def main() -> None:
         default="./widgets",
         help="Directory containing SBS widget assets",
     )
+    parser.add_argument(
+        "--theme",
+        default="default",
+        help="Theme name located under widgets/themes",
+    )
     parser.add_argument("--title", default="SBS Document", help="Document title")
     args = parser.parse_args()
 
     text = args.source.read_text(encoding="utf-8")
-    renderer = SBSRenderer(widgets_dir=args.widgets_dir)
+    renderer = SBSRenderer(widgets_dir=args.widgets_dir, theme=args.theme)
     html_doc = renderer.render_document(text, title=args.title)
     args.output.write_text(html_doc, encoding="utf-8")
 
