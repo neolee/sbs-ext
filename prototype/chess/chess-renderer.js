@@ -137,10 +137,14 @@ export function diffBoards(prevState, nextState) {
     return changed;
 }
 
-export function formatMoveLabel(move, idx) {
+export function formatMoveLabel(move, idx, fallbackFn) {
     if (!move) return '';
     if (move.label) return move.label;
     if (move.san) return move.san;
+    if (typeof fallbackFn === 'function') {
+        const value = fallbackFn(idx, move.ply);
+        if (value) return value;
+    }
     return move.ply ? `Move ${move.ply}` : `Move ${idx + 1}`;
 }
 
@@ -158,7 +162,7 @@ export function normalizeMoves(input) {
                 return { label: entry, san: entry, fen: null, ply: idx + 1 };
             }
             return {
-                label: entry.label || entry.san || `Move ${idx + 1}`,
+                label: entry.label ?? entry.san ?? null,
                 san: entry.san || entry.label,
                 fen: entry.fen || null,
                 comment: entry.comment || '',

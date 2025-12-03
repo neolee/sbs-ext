@@ -90,6 +90,21 @@ document.addEventListener('DOMContentLoaded', () => {
         widgets.push(widget);
     });
 
+    const langRadios = document.querySelectorAll('input[name="chess-lang"]');
+    const getSelectedLang = () => {
+        const checked = document.querySelector('input[name="chess-lang"]:checked');
+        return checked ? checked.value : 'zh';
+    };
+    const applyLanguage = (lang) => {
+        widgets.forEach(widget => widget.setLanguage(lang));
+    };
+    applyLanguage(getSelectedLang());
+    langRadios.forEach(radio => {
+        radio.addEventListener('change', (event) => {
+            applyLanguage(event.target.value);
+        });
+    });
+
     const slider = document.getElementById('board-size-control');
     const sliderValue = document.getElementById('board-size-value');
     const resetBtn = document.getElementById('board-size-reset');
