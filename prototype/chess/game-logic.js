@@ -13,11 +13,55 @@ export function createLogicController() {
     return new ChessController();
 }
 
+const PGN_DEFAULT = '';
+const PGN_LOAD_OPTIONS = { strict: false };
+
 function normalizeFen(fen) {
     if (!fen || fen.trim() === '' || fen.trim() === 'startpos') {
         return getDefaultFEN();
     }
     return fen.trim();
+}
+
+export function extractSanMovesFromPgn(pgn) {
+    if (!pgn || !pgn.trim()) {
+        return [];
+    }
+    const temp = new Chess();
+    try {
+        temp.loadPgn(pgn, PGN_LOAD_OPTIONS);
+        return temp.history();
+    } catch (err) {
+        console.warn('[sbs-chess] PGN parse failed', err.message);
+        return [];
+    }
+}
+
+export function buildTimelineFromPgn(fen, pgn) {
+    const timeline = [];
+    const moves = [];
+    const normalizedFen = normalizeFen(fen);
+    let chess;
+    try {
+        chess = new Chess(normalizedFen);
+    } catch (err) {
+        console.warn('[sbs-chess] Invalid base FEN for timeline', err.message);
+        chess = new Chess();
+        chess.load(normalizedFen, { strict: false });
+    }
+    timeline.push(parseFEN(chess.fen()));
+    const sanMoves = extractSanMovesFromPgn(pgn);
+    sanMoves.forEach((san, idx) => {
+        const move = chess.move(san);
+        if (!move) return;
+        moves.push({
+            san: move.san || san,
+            label: move.san || san,
+            ply: idx + 1
+        });
+        timeline.push(parseFEN(chess.fen()));
+    });
+    return { timeline, moves };
 }
 
 class ChessController {
@@ -29,7 +73,7 @@ class ChessController {
         this.cacheState();
     }
 
-    load({ fen, moves = [] } = {}) {
+    load({ fen, pgn = PGN_DEFAULT } = {}) {
         const normalized = normalizeFen(fen);
         try {
             this.chess = new Chess(normalized);
@@ -39,14 +83,14 @@ class ChessController {
         this.initialFen = normalized;
         this.history = [];
         this.cursor = 0;
-        this.applySanMoves(moves);
+        const sanMoves = Array.isArray(pgn) ? pgn : extractSanMovesFromPgn(pgn);
+        this.applySanMoves(sanMoves);
         this.cacheState();
         return this.getSnapshot();
     }
 
     applySanMoves(moves = []) {
-        moves.forEach(entry => {
-            const san = typeof entry === 'string' ? entry : entry?.san || entry?.label;
+        moves.forEach(san => {
             if (!san) return;
             try {
                 const move = this.chess.move(san);
@@ -202,23 +246,13 @@ class ChessController {
     getTimelineLength() {
         return this.history.length + 1;
     }
-}
 
-const UPCOMING_I18N = {
-    zh: [
-        '加入多步注解与箭头标注',
-        '支持 PGN 上传与导出',
-        '集成引擎评估与分数显示',
-        '可选的开局库参考提示'
-    ],
-    en: [
-        'Arrow/annotation tooling for study notes',
-        'PGN import/export workflow',
-        'Engine evaluation overlays and score display',
-        'Opening reference suggestions'
-    ]
-};
-
-export function describeUpcomingFeatures(lang = 'zh') {
-    return UPCOMING_I18N[lang] || UPCOMING_I18N.zh;
+    getPgn() {
+        try {
+            return this.chess.pgn();
+        } catch (err) {
+            console.warn('[sbs-chess] PGN export failed', err.message);
+            return '';
+        }
+    }
 }

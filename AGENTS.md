@@ -29,11 +29,11 @@ This document serves as a persistent context file for AI agents working on the `
 
 #### A. Chess
 *   **Goal**: Full interactive support.
-*   **Input**: FEN string (position), Moves list (SAN).
+*   **Input**: FEN string (position) + PGN move history.
 *   **Capabilities**:
     *   **Static**: Render board state.
     *   **Interactive**: Allow users to move pieces, validate legal moves, and support Undo/Redo.
-*   **Configuration**: `interactive: true/false`, `orientation`, `size`.
+*   **Configuration**: `interactive: true/false`, `orientation`, `size`, `layout` presets.
 
 #### B. Bridge
 *   **Goal**: Static display only.
@@ -57,7 +57,7 @@ This document serves as a persistent context file for AI agents working on the `
     *   **Layout**: Sticky positioning for the first child element.
 
 ## 4. Project Status
-*   **Date**: December 3, 2025
+*   **Date**: December 4, 2025
 *   **Phase**: **Implementation**
 *   **Current State**:
     *   Repository initialized; `README.md` and `sbs-1.1.md` upgraded to **SBS 1.1**.
@@ -65,10 +65,12 @@ This document serves as a persistent context file for AI agents working on the `
     *   Python renderer (`sbs_renderer`) renders SBS Markdown via `markdown-it-py`, supports `sbs-bridge` + `sbs-sticky`, and exposes a tested CLI entry point.
     *   Theme system shipped (`widgets/sbs-ext.css` plus `widgets/themes/{default,classic}.css`) with CLI `--theme` flag; layout CSS removed from Python bundle.
     *   Sample rendering script (`render_samples.sh`) regenerates default/classic outputs in `dist/` and documents CLI usage.
+    *   Chess prototype now enforces FEN+PGN truth, PGN-powered demos, and shared layout presets across widget variants.
+    *   Legacy timeline helpers removed from `prototype/chess/chess-renderer.js`, keeping the prototype renderer aligned with the upcoming widgets bundle.
 *   **Immediate Next Steps**:
-    *   Implement Chess and Go markdown extensions on top of the renderer pipeline.
+    *   Promote the chess widget into the shared `widgets/` bundle + renderer plugin using the finalized FEN/PGN contract.
     *   Provide guidance + tooling for author-defined themes/typography overrides.
-    *   Expand automated tests/fixtures covering widgets, themes, and CLI variants.
+    *   Expand automated tests/fixtures covering widgets (especially chess/go), themes, and CLI variants.
 
 ## 5. Technical Context
 *   **Dependencies**: `markdown-it-py` (Python), Standard Web APIs (JS).
@@ -81,4 +83,5 @@ This document serves as a persistent context file for AI agents working on the `
 ### 2025-12-04 Update
 - Prototype chess playground now ships a chess.js-powered controller with click-to-move, legal-move surfacing, undo/redo, promotion dialog, capture tally, and bilingual status copy.
 - Added two interactive demos (sandbox + Immortal Game trainer) alongside the earlier static showcases to validate responsive sizing, language toggle, and shared controls.
-- Syntax-checked updated modules; next milestone is porting this interaction layer into the reusable widgets bundle and renderer pipeline, followed by annotation tooling.
+- Completed FEN+PGN-only data model; canonical PGN now feeds demos and layout presets replace bespoke control toggles.
+- Removed legacy timeline helpers (`createTimelineStates`, `normalizeMoves`) to keep the prototype renderer in lockstep with the upcoming widget bundle.

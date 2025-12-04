@@ -4,13 +4,10 @@ import {
     boardToSquares,
     buildFileLabels,
     buildRankLabels,
-    createTimelineStates,
-    getStateForIndex,
     diffBoards,
-    normalizeMoves,
     formatMoveLabel
 } from './chess-renderer.js';
-import { createLogicController, PROMOTION_CHOICES } from './game-logic.js';
+import { createLogicController, PROMOTION_CHOICES, buildTimelineFromPgn } from './game-logic.js';
 
 const I18N = {
     zh: {
@@ -39,8 +36,8 @@ const I18N = {
         flip: '翻转',
         color_white: '白方',
         color_black: '黑方',
-        orientation_white: '白方在下',
-        orientation_black: '黑方在下',
+        orientation_white: '白方视角',
+        orientation_black: '黑方视角',
         move_fallback: '第 {n} 步',
         upcoming_title: '即将更新',
         promotion_title: '升变',
@@ -107,15 +104,60 @@ const I18N = {
 
 const DEFAULT_LANG = 'zh';
 
+const LAYOUT_PRESETS = {
+    full: {
+        header: true,
+        sidebar: true,
+        meta: true,
+        controls: true,
+        moveList: true,
+        notation: true,
+        status: true,
+        captures: true,
+        boardOnly: false
+    },
+    compact: {
+        header: true,
+        sidebar: true,
+        meta: true,
+        controls: false,
+        moveList: true,
+        notation: false,
+        status: true,
+        captures: true,
+        boardOnly: false
+    },
+    minimal: {
+        header: true,
+        sidebar: true,
+        meta: true,
+        controls: false,
+        moveList: false,
+        notation: false,
+        status: false,
+        captures: false,
+        boardOnly: false
+    },
+    'board-only': {
+        header: false,
+        sidebar: false,
+        meta: false,
+        controls: false,
+        moveList: false,
+        notation: false,
+        status: false,
+        captures: false,
+        boardOnly: true
+    }
+};
+
 const DEFAULT_CONFIG = {
     title: 'Chess Diagram',
     fen: getDefaultFEN(),
-    moves: [],
-    interactiveMoves: [],
+    pgn: '',
     interactive: false,
     orientation: 'white',
     size: 480,
-    showControls: true,
     layout: 'full',
     showAxes: true,
     lockSize: false,
@@ -137,6 +179,9 @@ export class ChessWidget {
         this.statusOverride = null;
         this.statusTimer = null;
         this.notationFields = null;
+        this.timeline = [];
+        this.staticMoves = [];
+        this.layoutPreset = LAYOUT_PRESETS.full;
         this.applyConfig(this.config);
     }
 
@@ -162,22 +207,32 @@ export class ChessWidget {
         return template.replace('{n}', moveNumber);
     }
 
+    getLayoutPreset() {
+        const key = this.config?.layout || 'full';
+        return LAYOUT_PRESETS[key] || LAYOUT_PRESETS.full;
+    }
+
     applyConfig(config) {
         this.config = { ...this.config, ...config };
-        this.moves = normalizeMoves(this.config.moves);
+        const fenInput = this.config.fen;
+        const normalizedFen = (!fenInput || fenInput.trim() === '' || fenInput.trim() === 'startpos')
+            ? getDefaultFEN()
+            : fenInput.trim();
         try {
-            this.baseState = parseFEN(this.config.fen);
+            this.baseState = parseFEN(normalizedFen);
             if (this.config.interactive) {
                 this.ensureInteractiveController();
                 this.timeline = [];
+                this.staticMoves = [];
                 this.currentIndex = this.logic.getCursor();
             } else {
-                this.timeline = createTimelineStates(this.baseState, this.moves);
+                const playback = buildTimelineFromPgn(normalizedFen, this.config.pgn);
+                this.timeline = playback.timeline?.length ? playback.timeline : [this.baseState];
+                this.staticMoves = playback.moves || [];
                 if (typeof this.currentIndex !== 'number') {
-                    this.currentIndex = 0;
-                } else {
-                    this.currentIndex = Math.min(this.currentIndex, Math.max(this.timeline.length - 1, 0));
+                    this.currentIndex = this.timeline.length - 1;
                 }
+                this.currentIndex = Math.min(Math.max(this.currentIndex, 0), this.timeline.length - 1);
             }
         } catch (err) {
             this.showError(err.message);
@@ -190,18 +245,20 @@ export class ChessWidget {
         try {
             this.logic.load({
                 fen: this.config.fen,
-                moves: this.config.interactiveMoves || []
+                pgn: this.config.pgn
             });
+            this.currentIndex = this.logic.getCursor();
         } catch (err) {
             this.showError(err.message);
         }
     }
 
     render() {
+        this.layoutPreset = this.getLayoutPreset();
         this.container.innerHTML = '';
         this.root = document.createElement('div');
         this.root.className = 'sbs-chess-widget';
-        if (this.config.layout === 'board-only') {
+        if (this.layoutPreset.boardOnly) {
             this.root.classList.add('board-only');
         }
         this.root.dataset.orientation = this.config.orientation;
@@ -209,7 +266,7 @@ export class ChessWidget {
         this.container.appendChild(this.root);
         this.resetSelectionState();
 
-        if (this.config.layout !== 'board-only') {
+        if (this.layoutPreset.header) {
             this.renderHeader();
         }
         this.renderBoard();
@@ -266,60 +323,93 @@ export class ChessWidget {
     }
 
     renderSidebar() {
-        if (this.config.layout === 'board-only') {
+        const layout = this.layoutPreset;
+        if (!layout.sidebar) {
             this.metaFields = null;
             this.notationFields = null;
+            this.buttons = null;
+            this.moveListElement = null;
+            this.moveItems = [];
+            this.statusBlock = null;
+            this.captureRows = null;
             return;
         }
 
         const sidebar = document.createElement('aside');
         sidebar.className = 'sidebar';
 
-        const positionBlock = document.createElement('div');
-        const positionHeading = document.createElement('h4');
-        positionHeading.textContent = this.t('position');
-        this.metaGrid = document.createElement('div');
-        this.metaGrid.className = 'board-meta';
-        this.metaFields = {
-            moveCount: this.createMetaItem('meta_move'),
-            active: this.createMetaItem('meta_active'),
-            castling: this.createMetaItem('meta_castling'),
-            enPassant: this.createMetaItem('meta_enpassant'),
-            size: this.createMetaItem('meta_size'),
-            orientation: this.createMetaItem('meta_orientation')
-        };
-        Object.values(this.metaFields).forEach(item => this.metaGrid.appendChild(item.element));
-        positionBlock.append(positionHeading, this.metaGrid);
-        sidebar.appendChild(positionBlock);
+        if (layout.meta) {
+            const positionBlock = document.createElement('div');
+            const positionHeading = document.createElement('h4');
+            positionHeading.textContent = this.t('position');
+            this.metaGrid = document.createElement('div');
+            this.metaGrid.className = 'board-meta';
+            this.metaFields = {
+                moveCount: this.createMetaItem('meta_move'),
+                active: this.createMetaItem('meta_active'),
+                castling: this.createMetaItem('meta_castling'),
+                enPassant: this.createMetaItem('meta_enpassant'),
+                size: this.createMetaItem('meta_size'),
+                orientation: this.createMetaItem('meta_orientation')
+            };
+            Object.values(this.metaFields).forEach(item => this.metaGrid.appendChild(item.element));
+            positionBlock.append(positionHeading, this.metaGrid);
+            sidebar.appendChild(positionBlock);
+        } else {
+            this.metaFields = null;
+        }
 
-        if (this.config.showControls) {
+        if (layout.controls) {
             this.controlsWrapper = this.createControls();
             sidebar.appendChild(this.controlsWrapper);
+        } else {
+            this.controlsWrapper = null;
+            this.buttons = null;
         }
 
         if (this.shouldShowMoveList()) {
             this.moveList = this.createMoveList();
             sidebar.appendChild(this.moveList);
+        } else {
+            this.moveList = null;
+            this.moveListElement = null;
+            this.moveItems = [];
         }
 
-        if (this.config.interactive) {
+        if (this.config.interactive && layout.status) {
             this.statusBlock = this.createStatusBlock();
             sidebar.appendChild(this.statusBlock);
-            this.captureBlock = this.createCaptureBlock();
-            sidebar.appendChild(this.captureBlock);
+        } else {
+            this.statusBlock = null;
         }
 
-        this.notationPanel = this.createNotationPanel();
-        sidebar.appendChild(this.notationPanel);
+        if (this.config.interactive && layout.captures) {
+            this.captureBlock = this.createCaptureBlock();
+            sidebar.appendChild(this.captureBlock);
+        } else {
+            this.captureBlock = null;
+            this.captureRows = null;
+        }
+
+        if (layout.notation) {
+            this.notationPanel = this.createNotationPanel();
+            sidebar.appendChild(this.notationPanel);
+        } else {
+            this.notationPanel = null;
+            this.notationFields = null;
+        }
 
         this.root.appendChild(sidebar);
     }
 
     shouldShowMoveList() {
+        if (!this.layoutPreset?.moveList) {
+            return false;
+        }
         if (this.config.interactive) {
             return true;
         }
-        return this.moves.length > 0;
+        return (this.staticMoves?.length || 0) > 0;
     }
 
     createMetaItem(labelKey) {
@@ -483,12 +573,18 @@ export class ChessWidget {
         if (this.config.interactive) {
             return this.logic.getSnapshot();
         }
-        return getStateForIndex(this.timeline, this.currentIndex);
+        return this.getStaticState(this.currentIndex);
     }
 
     getPreviousState() {
         if (this.config.interactive) return null;
-        return getStateForIndex(this.timeline, Math.max(this.currentIndex - 1, 0));
+        return this.getStaticState(Math.max(this.currentIndex - 1, 0));
+    }
+
+    getStaticState(index) {
+        if (!this.timeline || !this.timeline.length) return null;
+        const clamped = Math.max(0, Math.min(index, this.timeline.length - 1));
+        return this.timeline[clamped];
     }
 
     resetSelectionState() {
@@ -529,7 +625,7 @@ export class ChessWidget {
                 ply: idx + 1
             }));
         }
-        return this.moves;
+        return this.staticMoves || [];
     }
 
     updateBoard() {
@@ -804,9 +900,11 @@ export class ChessWidget {
 
     getPgnText() {
         if (this.config.interactive) {
-            return this.buildPgnFromMoves(this.logic.getHistory());
+            return this.logic.getPgn() || '';
         }
-        return this.buildPgnFromMoves(this.moves);
+        const moves = this.staticMoves || [];
+        const ply = Math.min(Math.max(this.currentIndex, 0), moves.length);
+        return this.buildPgnFromMoves(moves.slice(0, ply));
     }
 
     buildPgnFromMoves(moves = []) {

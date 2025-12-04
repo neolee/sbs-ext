@@ -8,13 +8,14 @@ This README documents the specifications for supported extensions, their input f
 
 ### Chess
 
-Display a chess board from a FEN string or a simple move list. The chess block can be configured to be interactive (allowing readers to play and move pieces) or rendered as a static diagram.
+Display a chess board from a FEN string plus an optional PGN move history. The chess block can be configured to be interactive (allowing readers to play and move pieces) or rendered as a static diagram.
 
 - `fen` (string): standard FEN describing the board position.
-- `moves` (optional array or SAN string): optional move list to display an annotated game.
+- `pgn` (optional string): PGN text used to build the move list/timeline.
 - `interactive` (bool): whether the renderer should allow piece movement and undo (default: `false`).
 - `orientation` (string): `white` or `black` to set board orientation (default: `white`).
 - `size` (string or number): preferred board size (e.g., `400px`).
+- `layout` (string): `full`, `compact`, `minimal`, or `board-only` to control visible sidebar panels (default: `full`).
 
 #### Usage Example
 
@@ -22,7 +23,7 @@ Display a chess board from a FEN string or a simple move list. The chess block c
 ```sbs-chess
 fen: "r1bqkbnr/pppppppp/2n5/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 0 1"
 interactive: true
-showControls: true
+layout: full
 orientation: white
 size: 480px
 ```
@@ -32,7 +33,7 @@ size: 480px
 
 - If `interactive: true`, the widget should enforce legal moves and provide an undo/redo stack.
 - If `interactive: false`, disable all interactivity and just render the static position.
-- If `moves` is provided, the widget may offer a step-through interface to navigate through the moves.
+- If `pgn` is provided, the widget may offer a step-through interface to navigate through the moves.
 - If no data is provided, render an initial board.
 - Default piece styles and board themes should be provided, more themes may be configurable.
 
@@ -121,7 +122,7 @@ uv run python -m sbs_renderer tests/markdown/bridge-sticky-layout.md dist/bridge
 During the process of this project's progression, several implementation considerations are subject to change. The following notes are intended to guide implementers of above extensions:
 
 - The project adopts the SBS syntax extension architecture introduced in the [SBS 1.1 spec](sbs-1.1.md):
-  - **Widget Blocks**: Use fenced code blocks with language identifiers (e.g., ` ```sbs-chess `) to embed widget configuration/data.
+  - **Widget Blocks**: Use fenced code blocks with language identifiers (e.g., ` ```sbs-chess``` `) to embed widget configuration/data.
   - **Layout Containers**: Use container syntax (e.g., `::: sbs-sticky`) for layout control.
   - **Attributes**: Use inline attributes (e.g., `{ runnable=true }`) for element modification.
 - Widget implementation should:

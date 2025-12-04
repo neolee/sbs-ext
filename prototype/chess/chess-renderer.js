@@ -37,7 +37,8 @@ export function parseFEN(fen) {
         castling,
         enPassant: enPassant === '-' ? null : enPassant,
         halfmove: Number(halfmove),
-        fullmove: Number(fullmove)
+        fullmove: Number(fullmove),
+        fen: normalized
     };
 }
 
@@ -99,18 +100,6 @@ export function buildRankLabels(orientation = 'white') {
     return orientation === 'white' ? [...ranks].reverse() : ranks;
 }
 
-export function createTimelineStates(baseState, moves) {
-    const states = [baseState];
-    moves.forEach(move => {
-        if (move.fen) {
-            states.push(parseFEN(move.fen));
-        } else {
-            states.push(null);
-        }
-    });
-    return states;
-}
-
 export function getStateForIndex(timeline, index) {
     if (!timeline.length) return null;
     const clamped = Math.max(0, Math.min(index, timeline.length - 1));
@@ -148,27 +137,3 @@ export function formatMoveLabel(move, idx, fallbackFn) {
     return move.ply ? `Move ${move.ply}` : `Move ${idx + 1}`;
 }
 
-export function normalizeMoves(input) {
-    if (!input) return [];
-    if (typeof input === 'string') {
-        return input
-            .split(/\s+/)
-            .filter(Boolean)
-            .map((san, idx) => ({ label: san, san, fen: null, ply: idx + 1 }));
-    }
-    if (Array.isArray(input)) {
-        return input.map((entry, idx) => {
-            if (typeof entry === 'string') {
-                return { label: entry, san: entry, fen: null, ply: idx + 1 };
-            }
-            return {
-                label: entry.label ?? entry.san ?? null,
-                san: entry.san || entry.label,
-                fen: entry.fen || null,
-                comment: entry.comment || '',
-                ply: entry.ply ?? idx + 1
-            };
-        });
-    }
-    return [];
-}
