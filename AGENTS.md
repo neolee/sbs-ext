@@ -77,3 +77,8 @@ This document serves as a persistent context file for AI agents working on the `
 
 ## 6. Operational Notes
 - Normally `.md` files are tracked as VS Code Notebooks. Writing to them via plain text editors overwrites the JSON notebook structure with `cells: []`, effectively blanking the file. Always edit via the Notebook UI or the `edit_notebook_file` tool to preserve structure.
+
+### 2025-12-04 Update
+- Prototype chess playground now ships a chess.js-powered controller with click-to-move, legal-move surfacing, undo/redo, promotion dialog, capture tally, and bilingual status copy.
+- Added two interactive demos (sandbox + Immortal Game trainer) alongside the earlier static showcases to validate responsive sizing, language toggle, and shared controls.
+- Syntax-checked updated modules; next milestone is porting this interaction layer into the reusable widgets bundle and renderer pipeline, followed by annotation tooling.

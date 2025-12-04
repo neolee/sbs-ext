@@ -19,6 +19,13 @@ const IMMORTAL_TIMELINE = [
     }
 ];
 
+const IMMORTAL_PLAYBOOK = [
+    'e4', 'e5',
+    'Nf3', 'Nc6',
+    'Bc4', 'Bc5',
+    'b4', 'Bxb4'
+];
+
 const BLACK_VIEW_FEN = 'r1bq1rk1/pp1n1pbp/3p1np1/2pPp3/2P1P3/2N2N2/PPQBBPPP/R3K2R w KQ - 0 11';
 
 const ONLY_MOVES = '1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6';
@@ -35,10 +42,11 @@ const demos = [
     {
         id: 'chess-demo-2',
         config: {
-            title: 'Immortal Game (Opening)',
+            title: 'Interactive Sandbox',
             fen: 'startpos',
-            moves: IMMORTAL_TIMELINE,
-            showControls: true
+            interactive: true,
+            showControls: true,
+            showAxes: true
         }
     },
     {
@@ -78,6 +86,17 @@ const demos = [
             size: 240,
             lockSize: true,
             moves: IMMORTAL_TIMELINE.slice(0, 2)
+        }
+    },
+    {
+        id: 'chess-demo-7',
+        config: {
+            title: 'Immortal Game Trainer',
+            fen: 'startpos',
+            interactive: true,
+            showControls: true,
+            interactiveMoves: IMMORTAL_PLAYBOOK,
+            moves: IMMORTAL_TIMELINE
         }
     }
 ];

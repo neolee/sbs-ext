@@ -123,6 +123,7 @@ main {
     align-items: center;
     justify-content: center;
     align-self: start;
+    position: relative;
 }
 
 .board-grid {
@@ -242,8 +243,11 @@ main {
     align-items: center;
     justify-content: center;
     font-size: calc(var(--board-size) / 8 * 0.78);
-    cursor: default;
     transition: background 120ms ease;
+}
+
+.square.interactive {
+    cursor: pointer;
 }
 
 .square.light { background: var(--square-light); }
@@ -251,6 +255,37 @@ main {
 
 .square.changed {
     box-shadow: inset 0 0 0 3px rgba(37, 99, 235, 0.35);
+}
+
+.square.selected::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 2px solid rgba(59, 130, 246, 0.8);
+    pointer-events: none;
+}
+
+.square.target::after {
+    content: '';
+    position: absolute;
+    width: 22%;
+    height: 22%;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.85);
+    pointer-events: none;
+    transform: scale(1);
+}
+
+.square.target-capture::after {
+    width: 65%;
+    height: 65%;
+    border: 3px solid rgba(37, 99, 235, 0.9);
+    background: transparent;
+}
+
+.square.recent-move {
+    box-shadow: inset 0 0 0 3px rgba(16, 185, 129, 0.5);
 }
 
 .square .piece {
@@ -351,6 +386,103 @@ main {
     font-weight: 600;
 }
 
+.status-block {
+    border: 1px solid var(--chess-border);
+    border-radius: 10px;
+    background: #eef2ff;
+    padding: 0.85rem;
+    font-size: 0.9rem;
+    color: #1f2933;
+}
+
+.capture-panel {
+    border: 1px solid var(--chess-border);
+    border-radius: 10px;
+    background: #fff;
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.capture-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.capture-label {
+    color: var(--panel-muted);
+    font-size: 0.85rem;
+}
+
+.capture-pieces {
+    flex: 1;
+    text-align: right;
+    font-size: 1rem;
+}
+
+.notation-panel {
+    border: 1px solid var(--chess-border);
+    border-radius: 10px;
+    background: #fff;
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.notation-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.notation-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--panel-heading);
+    gap: 0.5rem;
+}
+
+.copy-button {
+    border: 1px solid var(--chess-border);
+    border-radius: 8px;
+    background: #f8fafc;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 120ms ease;
+}
+
+.copy-button:hover:enabled {
+    background: rgba(37, 99, 235, 0.12);
+}
+
+.copy-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.notation-field {
+    margin: 0;
+    font-family: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    border: 1px solid var(--chess-border);
+    border-radius: 8px;
+    padding: 0.5rem;
+    max-height: 110px;
+    overflow: auto;
+    background: #fdfdfd;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 .upcoming-note {
     border-top: 1px solid var(--chess-border);
     padding-top: 0.75rem;
@@ -370,6 +502,54 @@ main {
     border: 1px solid #f87171;
     background: #fef2f2;
     color: #991b1b;
+}
+
+.promotion-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.promotion-dialog {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    max-width: 260px;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.promotion-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.promotion-options button,
+.promotion-cancel {
+    border: 1px solid var(--chess-border);
+    border-radius: 10px;
+    padding: 0.45rem 0.5rem;
+    background: #f8fafc;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.promotion-options button:hover,
+.promotion-cancel:hover {
+    background: rgba(37, 99, 235, 0.1);
+}
+
+.promotion-cancel {
+    margin-top: 0.25rem;
 }
 
 @media (max-width: 900px) {

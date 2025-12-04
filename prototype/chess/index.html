@@ -10,7 +10,7 @@
     <header class="page-header">
         <h1>SBS Chess Widget Prototype</h1>
         <p>This playground exercises the future `sbs-chess` extension before it is promoted into the shared widgets bundle. Each example mirrors the workflow documented in <code>README.md</code>.</p>
-        <p class="note">Phase&nbsp;1 focuses on accurate board rendering + move playback scaffolding. Interactive move entry and legality checks will layer on once visuals stabilize.</p>
+        <p class="note">Phase&nbsp;2 introduces click-to-move interactivity powered by <code>chess.js</code> while retaining the static rendering demos from Phase&nbsp;1.</p>
     </header>
 
     <section class="lang-switcher">
@@ -40,8 +40,8 @@
         </section>
 
         <section class="demo-section">
-            <h2>Demo 2 · Immortal Game Highlights</h2>
-            <p>Move list provided as an array with intermediate FEN snapshots to step through a famous attacking sequence.</p>
+            <h2>Demo 2 · Interactive Sandbox</h2>
+            <p>Click any piece to explore legal replies, make moves with full rules enforcement, and scrub through the resulting history.</p>
             <div id="chess-demo-2" class="widget-host"></div>
         </section>
 
@@ -68,10 +68,16 @@
             <p>Demonstrates the `size` parameter by rendering a full widget at 50% of the default board dimensions.</p>
             <div id="chess-demo-6" class="widget-host"></div>
         </section>
+
+        <section class="demo-section">
+            <h2>Demo 7 · Immortal Game Trainer</h2>
+            <p>Loads the opening phase of the Immortal Game so you can rewind, study, and continue playing the attack with full legality checks plus promotion handling.</p>
+            <div id="chess-demo-7" class="widget-host"></div>
+        </section>
     </main>
 
     <footer class="page-footer">
-        <p>Next steps: add interactive move entry, legal move validation, undo/redo, and annotation overlays.</p>
+        <p>Next steps: fold these prototype interactions into the production widgets bundle and renderer pipeline, then add annotation overlays.</p>
     </footer>
 
     <script type="module" src="main.js"></script>
