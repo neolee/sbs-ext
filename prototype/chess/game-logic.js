@@ -1,6 +1,7 @@
 // chess.js 1.0.0 (MIT) vendored locally to avoid network requirements during prototyping
 import { Chess } from './vendor/chess.mjs';
 import { getDefaultFEN, parseFEN } from './chess-renderer.js';
+import { ECO_LOOKUP as ECO_LOOKUP_SOURCE } from './eco-dictionary.js';
 
 export const PROMOTION_CHOICES = ['q', 'r', 'b', 'n'];
 
@@ -15,6 +16,32 @@ export function createLogicController() {
 
 const PGN_DEFAULT = '';
 const PGN_LOAD_OPTIONS = { strict: false };
+const ECO_LOOKUP = ECO_LOOKUP_SOURCE || {};
+
+function isDefaultStart(fen) {
+    return normalizeFen(fen) === getDefaultFEN();
+}
+
+function detectOpeningForMoves(moves = [], fen) {
+    if (!Array.isArray(moves) || !moves.length) {
+        return null;
+    }
+    if (!isDefaultStart(fen)) {
+        return null;
+    }
+    for (let len = moves.length; len > 0; len -= 1) {
+        const key = moves.slice(0, len).join(' ');
+        const match = ECO_LOOKUP[key];
+        if (match) {
+            return {
+                eco: match.eco,
+                name: match.name,
+                ply: match.ply
+            };
+        }
+    }
+    return null;
+}
 
 function normalizeFen(fen) {
     if (!fen || fen.trim() === '' || fen.trim() === 'startpos') {
@@ -61,7 +88,19 @@ export function buildTimelineFromPgn(fen, pgn) {
         });
         timeline.push(parseFEN(chess.fen()));
     });
-    return { timeline, moves };
+    const classification = detectOpeningForMoves(
+        moves.map(entry => entry.san).filter(Boolean),
+        normalizedFen
+    );
+    return { timeline, moves, opening: classification };
+}
+
+export function classifyOpening(fen, sanMoves = []) {
+    const normalizedFen = normalizeFen(fen);
+    const sequence = Array.isArray(sanMoves)
+        ? sanMoves.filter(Boolean)
+        : [];
+    return detectOpeningForMoves(sequence, normalizedFen);
 }
 
 class ChessController {
@@ -70,6 +109,7 @@ class ChessController {
         this.history = [];
         this.cursor = 0;
         this.initialFen = getDefaultFEN();
+        this.openingInfo = null;
         this.cacheState();
     }
 
@@ -116,6 +156,12 @@ class ChessController {
             repetition: this.chess.isThreefoldRepetition(),
             turn: this.chess.turn()
         };
+        this.openingInfo = detectOpeningForMoves(
+            this.getHistory()
+                .map(move => move?.san)
+                .filter(Boolean),
+            this.initialFen
+        );
     }
 
     getSnapshot() {
@@ -127,7 +173,8 @@ class ChessController {
             cursor: this.cursor,
             historyLength: this.history.length,
             lastMove: this.getLastMove(),
-            captures: this.getCaptures()
+            captures: this.getCaptures(),
+            opening: this.openingInfo
         };
     }
 

@@ -7,7 +7,12 @@ import {
     diffBoards,
     formatMoveLabel
 } from './chess-renderer.js';
-import { createLogicController, PROMOTION_CHOICES, buildTimelineFromPgn } from './game-logic.js';
+import {
+    createLogicController,
+    PROMOTION_CHOICES,
+    buildTimelineFromPgn,
+    classifyOpening
+} from './game-logic.js';
 
 const I18N = {
     zh: {
@@ -29,6 +34,7 @@ const I18N = {
         meta_castling: '王车易位',
         meta_enpassant: '吃过路兵',
         meta_move: '回合',
+        meta_opening: '开局',
         meta_orientation: '棋盘朝向',
         meta_size: '棋盘尺寸',
         timeline: '时间轴',
@@ -40,6 +46,7 @@ const I18N = {
         orientation_black: '黑方视角',
         move_fallback: '第 {n} 步',
         upcoming_title: '即将更新',
+        opening_unknown: '未识别开局',
         promotion_title: '升变',
         promotion_choose: '选择升变棋子',
         promotion_cancel: '取消',
@@ -74,6 +81,7 @@ const I18N = {
         meta_castling: 'Castling',
         meta_enpassant: 'En Passant',
         meta_move: 'Move #',
+        meta_opening: 'Opening',
         meta_orientation: 'Orientation',
         meta_size: 'Size',
         timeline: 'Timeline',
@@ -85,6 +93,7 @@ const I18N = {
         orientation_black: 'Black at bottom',
         move_fallback: 'Move {n}',
         upcoming_title: 'Future work',
+        opening_unknown: 'Unknown opening',
         promotion_title: 'Promotion',
         promotion_choose: 'Pick a promotion piece',
         promotion_cancel: 'Cancel',
@@ -205,6 +214,39 @@ export class ChessWidget {
         const moveNumber = typeof ply === 'number' ? ply : index + 1;
         const template = this.t('move_fallback');
         return template.replace('{n}', moveNumber);
+    }
+
+    describeOpening(info) {
+        if (!info) {
+            return this.t('opening_unknown');
+        }
+        const tokens = [];
+        if (info.eco) tokens.push(info.eco);
+        if (info.name) tokens.push(info.name);
+        return tokens.length ? tokens.join(' · ') : this.t('opening_unknown');
+    }
+
+    getStaticOpeningAt(index = this.currentIndex) {
+        if (!Array.isArray(this.staticMoves) || !this.staticMoves.length) {
+            return null;
+        }
+        const ply = Math.max(0, Math.min(index, this.staticMoves.length));
+        if (ply === 0) return null;
+        const sanSequence = this.staticMoves
+            .slice(0, ply)
+            .map(move => move?.san)
+            .filter(Boolean);
+        if (!sanSequence.length) {
+            return null;
+        }
+        return classifyOpening(this.config.fen, sanSequence);
+    }
+
+    resolveOpeningInfo(state) {
+        if (this.config.interactive) {
+            return state?.opening || null;
+        }
+        return this.getStaticOpeningAt(this.currentIndex);
     }
 
     getLayoutPreset() {
@@ -350,7 +392,7 @@ export class ChessWidget {
                 castling: this.createMetaItem('meta_castling'),
                 enPassant: this.createMetaItem('meta_enpassant'),
                 size: this.createMetaItem('meta_size'),
-                orientation: this.createMetaItem('meta_orientation')
+                    orientation: this.createMetaItem('meta_orientation')
             };
             Object.values(this.metaFields).forEach(item => this.metaGrid.appendChild(item.element));
             positionBlock.append(positionHeading, this.metaGrid);
@@ -376,7 +418,7 @@ export class ChessWidget {
             this.moveItems = [];
         }
 
-        if (this.config.interactive && layout.status) {
+        if (layout.status) {
             this.statusBlock = this.createStatusBlock();
             sidebar.appendChild(this.statusBlock);
         } else {
@@ -484,7 +526,7 @@ export class ChessWidget {
     createStatusBlock() {
         const block = document.createElement('div');
         block.className = 'status-block';
-        block.textContent = this.t('status_ready');
+        block.textContent = this.t('opening_unknown');
         return block;
     }
 
@@ -787,23 +829,29 @@ export class ChessWidget {
     }
 
     updateStatusBlock() {
-        if (!this.statusBlock || !this.config.interactive) return;
+        if (!this.statusBlock) return;
         if (this.statusOverride) {
             this.statusBlock.textContent = this.statusOverride;
             return;
         }
-        const snapshot = this.logic.getSnapshot();
-        let text = snapshot.status.turn === 'w' ? this.t('status_turn_white') : this.t('status_turn_black');
-        if (snapshot.status.checkmate) {
-            text = `${this.t('status_game_over')} · ${this.t('status_checkmate')}`;
-        } else if (snapshot.status.stalemate) {
-            text = `${this.t('status_game_over')} · ${this.t('status_stalemate')}`;
-        } else if (snapshot.status.draw || snapshot.status.repetition) {
-            text = `${this.t('status_game_over')} · ${this.t('status_draw')}`;
-        } else if (snapshot.status.inCheck) {
-            text = `${text} · ${this.t('status_check')}`;
+        const state = this.getDisplayState();
+        const openingInfo = this.resolveOpeningInfo(state);
+        let lines = [this.describeOpening(openingInfo)];
+
+        if (this.config.interactive && state?.status) {
+            const { status } = state;
+            if (status.checkmate) {
+                lines.push(`${this.t('status_game_over')} · ${this.t('status_checkmate')}`);
+            } else if (status.stalemate) {
+                lines.push(`${this.t('status_game_over')} · ${this.t('status_stalemate')}`);
+            } else if (status.draw || status.repetition) {
+                lines.push(`${this.t('status_game_over')} · ${this.t('status_draw')}`);
+            } else if (status.inCheck) {
+                lines.push(this.t('status_check'));
+            }
         }
-        this.statusBlock.textContent = text;
+
+        this.statusBlock.textContent = lines.filter(Boolean).join('\n');
     }
 
     updateCaptures() {
