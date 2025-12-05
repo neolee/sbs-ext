@@ -10,12 +10,36 @@ const ROOT = path.resolve(__dirname, '..')
 const SOURCE_PGN = path.join(ROOT, 'data', 'chessjs-benchmark.pgn')
 const OUTPUT_JSON = path.join(ROOT, 'eco-dictionary.json')
 const OUTPUT_MODULE = path.join(ROOT, 'eco-dictionary.js')
+const ZH_OVERRIDE_PATH = path.join(ROOT, 'data', 'eco-zh.json')
+const ZH_WIKI_PATH = path.join(ROOT, 'data', 'eco-zh-wikipedia.json')
 
 const raw = await readFile(SOURCE_PGN, 'utf8')
 const chunks = raw
   .split(/\n(?=\[Event )/g)
   .map((chunk) => chunk.trim())
   .filter(Boolean)
+
+let zhOverrides = {}
+try {
+  const zhRaw = await readFile(ZH_OVERRIDE_PATH, 'utf8')
+  zhOverrides = JSON.parse(zhRaw)
+} catch (err) {
+  console.warn('[build-eco-table] zh override file missing or invalid, continuing with fallbacks')
+}
+
+let zhWiki = {}
+try {
+  const zhWikiRaw = await readFile(ZH_WIKI_PATH, 'utf8')
+  const wikiPayload = JSON.parse(zhWikiRaw)
+  zhWiki = wikiPayload.entries || wikiPayload
+} catch (err) {
+  console.warn('[build-eco-table] zh wiki file missing or invalid, continuing with fallbacks')
+}
+
+const zhTranslations = {
+  ...zhWiki,
+  ...zhOverrides
+}
 
 const entries = []
 for (const chunk of chunks) {
@@ -29,9 +53,14 @@ for (const chunk of chunks) {
   if (!moves.length) {
     continue
   }
+  const labels = {
+    en: headers.Opening || null,
+    zh: zhTranslations[headers.ECO] || zhTranslations[headers.Opening] || headers.Opening || null
+  }
+
   entries.push({
     eco: headers.ECO,
-    name: headers.Opening || null,
+    labels,
     moves
   })
 }
@@ -46,7 +75,7 @@ for (const entry of entries) {
     if (!existing || existing.ply <= prefix.length) {
       lookup[key] = {
         eco: entry.eco,
-        name: entry.name,
+        labels: entry.labels,
         ply: prefix.length
       }
     }

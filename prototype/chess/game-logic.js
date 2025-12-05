@@ -35,7 +35,7 @@ function detectOpeningForMoves(moves = [], fen) {
         if (match) {
             return {
                 eco: match.eco,
-                name: match.name,
+                labels: match.labels || { en: match.name || null },
                 ply: match.ply
             };
         }

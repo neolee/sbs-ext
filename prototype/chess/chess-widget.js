@@ -222,8 +222,16 @@ export class ChessWidget {
         }
         const tokens = [];
         if (info.eco) tokens.push(info.eco);
-        if (info.name) tokens.push(info.name);
+        const localized = this.getOpeningLabel(info);
+        if (localized) tokens.push(localized);
         return tokens.length ? tokens.join(' · ') : this.t('opening_unknown');
+    }
+
+    getOpeningLabel(info) {
+        if (!info) return null;
+        const labels = info.labels || {};
+        const lang = this.config?.lang || DEFAULT_LANG;
+        return labels[lang] || labels.en || labels.zh || null;
     }
 
     getStaticOpeningAt(index = this.currentIndex) {

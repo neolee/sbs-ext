@@ -85,3 +85,8 @@ This document serves as a persistent context file for AI agents working on the `
 - Added two interactive demos (sandbox + Immortal Game trainer) alongside the earlier static showcases to validate responsive sizing, language toggle, and shared controls.
 - Completed FEN+PGN-only data model; canonical PGN now feeds demos and layout presets replace bespoke control toggles.
 - Removed legacy timeline helpers (`createTimelineStates`, `normalizeMoves`) to keep the prototype renderer in lockstep with the upcoming widget bundle.
+
+### 2025-12-05 Update
++- ECO lookup builder (`prototype/chess/scripts/build-eco-table.mjs`) now ingests `data/eco-zh.json` to emit bilingual (en/zh) labels for every ECO code.
++- Prototype chess logic and widget consume localized ECO labels so the timeline status panel mirrors the active language.
++- Generated both JSON + JS ECO artifacts to stay browser-import safe while serving the localization data.
