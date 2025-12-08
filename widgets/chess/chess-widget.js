@@ -631,13 +631,17 @@ export class ChessWidget {
         return size || '480px';
     }
 
+    shouldShowAxes() {
+        return Boolean(this.config.showAxes);
+    }
+
     // Ensure the board keeps a fixed footprint even if CSS custom properties fail.
     applyBoardSizeStyles() {
         const size = this.resolveBoardSize();
+        const hasAxes = this.shouldShowAxes();
         if (this.root) {
             this.root.style.setProperty('--board-size', size);
         }
-        const hasAxes = !!this.config.showAxes;
         if (this.boardShell) {
             this.boardShell.style.gridTemplateColumns = hasAxes ? `auto ${size}` : size;
             this.boardShell.style.gridTemplateRows = hasAxes ? `${size} auto` : size;
@@ -769,12 +773,13 @@ export class ChessWidget {
         if (!this.fileLabels && !this.rankLabels) return;
         const files = buildFileLabels(this.config.orientation);
         const ranks = buildRankLabels(this.config.orientation);
+        const display = this.shouldShowAxes() ? 'flex' : 'none';
         if (this.fileLabels) {
-            this.fileLabels.style.display = this.config.showAxes ? 'flex' : 'none';
+            this.fileLabels.style.display = display;
             this.fileLabels.innerHTML = files.map(file => `<span>${file}</span>`).join('');
         }
         if (this.rankLabels) {
-            this.rankLabels.style.display = this.config.showAxes ? 'flex' : 'none';
+            this.rankLabels.style.display = display;
             this.rankLabels.innerHTML = ranks.map(rank => `<span>${rank}</span>`).join('');
         }
     }

@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 import html
 from typing import Any, Dict
 
-import yaml
+from .utils import escape_script_payload, parse_fence_config
 
 
 _ATTR_MAP = {
@@ -34,17 +34,9 @@ class ChessBlock:
 
     @classmethod
     def from_fence(cls, raw: str) -> "ChessBlock":
-        text = raw.strip()
-        if not text:
-            return cls({})
-
-        try:
-            data = yaml.safe_load(text)
-        except yaml.YAMLError:
-            data = None
-
-        if isinstance(data, dict):
-            return cls(data)
+        parsed = parse_fence_config(raw)
+        if parsed is not None:
+            return cls(parsed)
 
         # Treat unparsed bodies as PGN payloads.
         return cls({"pgn": raw})
@@ -96,7 +88,7 @@ class ChessBlock:
         pgn_payload = str(config.get("pgn") or "").strip()
         script_html = ""
         if pgn_payload:
-            escaped = pgn_payload.replace("</script>", "</scr' 'ipt>")
+            escaped = escape_script_payload(pgn_payload)
             script_html = (
                 "<script type='application/x-chess-pgn'>"
                 f"{escaped}"

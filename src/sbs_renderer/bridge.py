@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 import html
 from typing import Any, Dict
 
-import yaml
+from .utils import escape_script_payload, parse_fence_config
 
 
 @dataclass
@@ -18,18 +18,9 @@ class BridgeBlock:
     @classmethod
     def from_fence(cls, raw: str) -> "BridgeBlock":
         """Parse the fenced block body as YAML-like config."""
-        text = raw.strip()
-        if not text:
-            return cls({})
-
-        try:
-            data = yaml.safe_load(text)
-        except yaml.YAMLError:
-            data = None
-
-        if isinstance(data, dict):
-            return cls(data)
-
+        parsed = parse_fence_config(raw)
+        if parsed is not None:
+            return cls(parsed)
         # Fall back to treating the entire body as a PBN payload.
         return cls({"data": raw})
 
@@ -58,7 +49,7 @@ class BridgeBlock:
 
         # Preserve raw PBN text so the web component receives literal quotes and
         # suit symbols. Escape only the closing script tag sentinel.
-        script = pbn_payload.replace("</script>", "</scr' 'ipt>")
+        script = escape_script_payload(pbn_payload)
         return (
             f"<sbs-bridge {attr_html}>"
             f"<script type='application/pbn'>{script}</script>"

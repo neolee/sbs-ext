@@ -18,7 +18,7 @@ This document serves as a persistent context file for AI agents working on the `
 *   **Language**: Python (>= 3.11) for the reference implementation/tooling.
 *   **Markdown Parser**: `markdown-it-py` (Primary target).
 *   **Frontend Technology**: **Web Components (Custom Elements)**.
-*   **Syntax**: Extensions use **SBS 1.1 Syntax**: Fenced Code Blocks (` ```sbs-xxx``` `), Containers (`::: sbs-xxx`), and Attributes (`{ key=value }`).
+*   **Syntax**: Extensions use **SBS 1.1 Syntax**: Fenced Code Blocks (` ```sbs-xxx `), Containers (`::: sbs-xxx`), and Attributes (`{ key=value }`).
 
 ### Directory Structure
 *   `src/`: Python source code for Markdown renderer extensions.
@@ -95,3 +95,6 @@ This document serves as a persistent context file for AI agents working on the `
 - Promoted the chess prototype into `widgets/chess/` with a reusable `<sbs-chess>` custom element plus parity demo page.
 - Added chess Markdown fixtures (`chess-demo.md`, `chess-sticky-layout.md`) alongside renamed bridge counterparts to keep renderer samples aligned.
 - Extended `sbs_renderer` to emit `<sbs-chess>` fences, load the new widget bundle + sticky CSS, and refreshed `render_samples.sh` to produce bridge/chess HTML in `dist/`.
+- Chess widget now derives axis visibility from a single helper so board-only + sticky layouts stay perfectly centered regardless of host CSS.
+- Renderer blocks share a new `parse_fence_config` + `escape_script_payload` utility, keeping bridge/chess modules smaller and preventing future duplication.
+- Sticky chess markdown received much longer narration to showcase the anchored board experience in docs and regenerated demo HTML via `render_samples.sh`.
