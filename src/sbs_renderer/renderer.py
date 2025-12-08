@@ -10,6 +10,7 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from mdit_py_plugins.attrs import attrs_plugin
 from .bridge import BridgeBlock
+from .chess import ChessBlock
 from .sticky import use_sticky
 
 
@@ -42,9 +43,20 @@ class SBSRenderer:
     def render_document(self, text: str, *, title: str = "SBS Document") -> str:
         body = self.render(text)
         title_html = html.escape(title)
-        css_href = f"{self.widgets_dir}/sbs-ext.css"
-        theme_href = f"{self.widgets_dir}/themes/{self.theme}.css"
-        module_src = f"{self.widgets_dir}/bridge/index.js"
+        css_hrefs = [
+            f"{self.widgets_dir}/sbs-ext.css",
+            f"{self.widgets_dir}/sticky.css",
+            f"{self.widgets_dir}/themes/{self.theme}.css",
+        ]
+        css_links = "\n".join(f"<link rel='stylesheet' href='{href}'>" for href in css_hrefs)
+
+        script_srcs = [
+            f"{self.widgets_dir}/bridge/index.js",
+            f"{self.widgets_dir}/chess/index.js",
+        ]
+        script_tags = "\n".join(
+            f"<script type='module' src='{src}'></script>" for src in script_srcs
+        )
         html_str = dedent("""\
             <!DOCTYPE html>
             <html lang='en'>
@@ -52,9 +64,8 @@ class SBSRenderer:
             <meta charset='utf-8'>
             <meta name='viewport' content='width=device-width, initial-scale=1'>
             <title>{title_html}</title>
-            <link rel='stylesheet' href='{css_href}'>
-            <link rel='stylesheet' href='{theme_href}'>
-            <script type='module' src='{module_src}'></script>
+            {css_links}
+            {script_tags}
             </head>
             <body>
             {body}
@@ -62,9 +73,8 @@ class SBSRenderer:
             </html>
         """).strip("\n").format(
             title_html=title_html,
-            css_href=css_href,
-            theme_href=theme_href,
-            module_src=module_src,
+            css_links=css_links,
+            script_tags=script_tags,
             body=body,
         )
         return html_str
@@ -80,21 +90,28 @@ class SBSRenderer:
         if fence_lang == "sbs-bridge":
             block = BridgeBlock.from_fence(token.content)
             html_block = block.to_html()
+            return self._wrap_sticky_if_needed(html_block, env)
 
-            sticky_stack = env.get("_sbs_sticky_stack") if isinstance(env, dict) else None
-            if sticky_stack:
-                state = sticky_stack[-1]
-                if not state.get("visual_done"):
-                    state["visual_done"] = True
-                    state["text_open"] = True
-                    return (
-                        "<div class='sbs-sticky-figure'>"
-                        f"{html_block}"
-                        "</div>\n<div class='sbs-sticky-body'>"
-                    )
-            return html_block
+        if fence_lang == "sbs-chess":
+            block = ChessBlock.from_fence(token.content)
+            html_block = block.to_html()
+            return self._wrap_sticky_if_needed(html_block, env)
 
         if self._default_fence:
             return self._default_fence(tokens, idx, options, env)
 
         return self._renderer.render_token(tokens, idx, options, env)
+
+    def _wrap_sticky_if_needed(self, html_block: str, env) -> str:
+        sticky_stack = env.get("_sbs_sticky_stack") if isinstance(env, dict) else None
+        if sticky_stack:
+            state = sticky_stack[-1]
+            if not state.get("visual_done"):
+                state["visual_done"] = True
+                state["text_open"] = True
+                return (
+                    "<div class='sbs-sticky-figure'>"
+                    f"{html_block}"
+                    "</div>\n<div class='sbs-sticky-body'>"
+                )
+        return html_block

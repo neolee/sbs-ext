@@ -332,6 +332,7 @@ export class ChessWidget {
         }
         this.renderBoard();
         this.renderSidebar();
+        this.applyBoardSizeStyles();
 
         this.updateBoard();
         this.updateMeta();
@@ -628,6 +629,36 @@ export class ChessWidget {
             return `${size}px`;
         }
         return size || '480px';
+    }
+
+    // Ensure the board keeps a fixed footprint even if CSS custom properties fail.
+    applyBoardSizeStyles() {
+        const size = this.resolveBoardSize();
+        if (this.root) {
+            this.root.style.setProperty('--board-size', size);
+        }
+        const hasAxes = !!this.config.showAxes;
+        if (this.boardShell) {
+            this.boardShell.style.gridTemplateColumns = hasAxes ? `auto ${size}` : size;
+            this.boardShell.style.gridTemplateRows = hasAxes ? `${size} auto` : size;
+            this.boardShell.style.columnGap = hasAxes ? '0.35rem' : '0';
+            this.boardShell.style.rowGap = hasAxes ? '0.35rem' : '0';
+        }
+        if (this.boardGrid) {
+            this.boardGrid.style.width = size;
+            this.boardGrid.style.height = size;
+            this.boardGrid.style.gridColumn = hasAxes ? '2 / 3' : '1 / 2';
+            this.boardGrid.style.gridRow = '1 / 2';
+        }
+        if (this.fileLabels) {
+            this.fileLabels.style.width = size;
+            this.fileLabels.style.gridColumn = hasAxes ? '2 / 3' : '1 / 2';
+        }
+        if (this.rankLabels) {
+            this.rankLabels.style.height = size;
+            this.rankLabels.style.gridColumn = hasAxes ? '1 / 2' : '1 / 2';
+            this.rankLabels.style.gridRow = '1 / 2';
+        }
     }
 
     getDisplayState() {

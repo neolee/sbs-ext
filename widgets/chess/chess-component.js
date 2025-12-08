@@ -103,8 +103,8 @@ const styles = `
     grid-column: 2 / 3;
     grid-row: 1 / 2;
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    grid-template-rows: repeat(8, 1fr);
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-rows: repeat(8, minmax(0, 1fr));
     width: var(--board-size);
     height: var(--board-size);
     border-radius: 12px;
@@ -147,6 +147,9 @@ const styles = `
     display: flex;
     align-items: center;
     justify-content: center;
+    aspect-ratio: 1 / 1;
+    min-width: 0;
+    min-height: 0;
     font-size: calc(var(--board-size) / 8 * 0.78);
     transition: background 120ms ease;
 }

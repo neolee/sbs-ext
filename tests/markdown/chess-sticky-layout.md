@@ -1,10 +1,10 @@
 ## Opening Sparks
 
 ::: sbs-sticky
-
 ```sbs-chess
 title: "Move 12 · Catalan Tension"
 layout: "board-only"
+size: 240
 fen: "r1bqk2r/pp2bppp/2n1pn2/2pp4/2P1P3/1PNP1N2/PB1B1PPP/R2QK2R w KQkq - 4 9"
 orientation: "white"
 interactive: false
@@ -18,23 +18,18 @@ Catalan structures often hinge on whether Black can safely capture on c4 before 
 2. Alternatively, `cxd5 exd5 e5` locks the light squares and highlights the long Catalan bishop.
 
 Either line underscores that Black's ...Bc5 plan is risky without ...a6 first.
+
+Zooming out, this is the canonical Catalan story: every tempo that delays ...a6 or ...b5 hands White another file to pressure. If the viewer scrolls through the surrounding prose while the diagram sticks to the margin, the contrast between written plans and the frozen board state becomes impossible to miss.
+
+Notice how the sticky frame keeps the bishops aligned with the commentary about dark-square control. Readers can compare the c4 pawn lever, memorize the knight routes (b1-d2-f1-g3), and immediately look back at the board without losing their place in the text.
 :::
 
-## Middlegame Collision
-
 ::: sbs-sticky
-
 ```sbs-chess
 title: "Move 23 · Exchange Sacrifice"
 layout: "board-only"
+size: 240
 fen: "2rq1rk1/1b1nbppp/p3pn2/1p6/3PB3/P1N1BN2/1PP2PPP/2RQ1RK1 w - - 0 23"
-pgn: |
-  1. d4 Nf6 2. c4 e6 3. g3 d5 4. Bg2 Be7
-  5. Nf3 O-O 6. O-O dxc4 7. Qc2 a6 8. a4 Bd7
-  9. Qxc4 Bc6 10. Nc3 Nbd7 11. Re1 a5 12. e4 Nb6
-  13. Qe2 Bb4 14. Bg5 Be7 15. Rad1 Nxa4 16. d5 Nxc3
-  17. bxc3 exd5 18. exd5 Ba4 19. Rb1 Re8 20. Nd4 h6
-  21. Bxf6 Bxf6 22. Rxb5 Bxb5
 orientation: "white"
 ```
 
@@ -45,15 +40,16 @@ Key takeaways while scrolling:
 - If Black plays ...Nb6, White hits with d6!, cracking open the long diagonal.
 - White's rook lift to e3-g3 becomes irresistible once the g-file opens.
 
+Because the sticky pane keeps the diagram in view, you can narrate how Rc1, c4, and h4 converge on f6 without forcing readers to scroll back up for every motif. The text body can stretch to a dozen paragraphs—explaining move orders, sacrifices, or alternative exchanges—while the position stays anchored.
+
+Try scanning the prose quickly: the board never jitters or scrolls away, so concepts like "dark-square bind" and "exchange sacrifice timing" feel tangible. That persistence is exactly what we want authors to experience when they rely on the SBS sticky container.
 :::
 
-## Endgame Rescue
-
 ::: sbs-sticky
-
 ```sbs-chess
 title: "Move 36 · Knight Fortress"
 layout: "board-only"
+size: 240
 fen: "6k1/1b1n1pp1/p2Pp2p/1p1nP3/3N4/1P4P1/P4P1P/3R2K1 w - - 0 36"
 orientation: "white"
 interactive: false
@@ -67,4 +63,8 @@ Black traded queens hoping the extra exchange would decide matters, but the knig
 - Patience is everything; White triangulates the king until the ...b4 advance becomes impossible.
 
 This closing position is what the renderer must match when exporting long-form analysis pieces.
+
+With the sticky presentation, you can describe subtle maneuvers—opposition triangulations, knight reroutes to c6, or waiting moves with Kf1-e2—over multiple paragraphs. The board never leaves the reader’s peripheral vision, so the strategic checkpoints (freeze the queenside, win the f-pawn race, inch the king forward) stay anchored in the same viewport.
+
+It also highlights how SBS handles longer essays: authors can interleave bullet lists, figurine notation, or even diagrams-within-diagrams, confident that the hero board remains glued to the sidebar for constant reference.
 :::
