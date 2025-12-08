@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBS Chess Web Component Demo</title>
+    <style>
+        :root {
+            color-scheme: light;
+        }
+
+        body {
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background: #f5f7fb;
+            color: #111827;
+        }
+
+        .page-header,
+        .page-footer {
+            max-width: 960px;
+            margin: 0 auto 2rem;
+            background: #ffffff;
+            border: 1px solid #d9e2ec;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+        }
+
+        .page-header h1 {
+            margin-top: 0;
+        }
+
+        .note {
+            color: #708090;
+            margin-top: 0.5rem;
+        }
+
+        .lang-switcher {
+            max-width: 960px;
+            margin: 0 auto 1rem;
+            background: #ffffff;
+            border: 1px solid #d9e2ec;
+            border-radius: 12px;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
+        }
+
+        .lang-switcher span {
+            font-weight: 600;
+            color: #1f2933;
+        }
+
+        .lang-switcher label {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.95rem;
+        }
+
+        .prototype-controls {
+            max-width: 960px;
+            margin: -1rem auto 2rem;
+            background: #ffffff;
+            border: 1px solid #d9e2ec;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+        }
+
+        .prototype-controls label {
+            font-weight: 600;
+            color: #1f2933;
+        }
+
+        .prototype-controls input[type="range"] {
+            flex: 1;
+        }
+
+        .prototype-controls .value {
+            font-variant-numeric: tabular-nums;
+            color: #708090;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .prototype-controls button {
+            border: 1px solid #d9e2ec;
+            background: #ffffff;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 120ms ease;
+        }
+
+        .prototype-controls button:hover {
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto 4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .demo-section {
+            background: #ffffff;
+            border: 1px solid #d9e2ec;
+            border-radius: 14px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .widget-host {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1>SBS Chess Web Component</h1>
+        <p>These demos mirror the earlier prototype scenarios, now rendered via the reusable <code>&lt;sbs-chess&gt;</code> custom element.</p>
+        <p class="note">Phase 2 adds click-to-move interactivity powered by <code>chess.js</code> without losing the static showcase variants.</p>
+    </header>
+
+    <section class="lang-switcher">
+        <span>Language:</span>
+        <label>
+            <input type="radio" name="chess-lang" value="zh" checked>
+            中文
+        </label>
+        <label>
+            <input type="radio" name="chess-lang" value="en">
+            English
+        </label>
+    </section>
+
+    <section class="prototype-controls">
+        <label for="board-size-control">Board size</label>
+        <input type="range" id="board-size-control" min="240" max="640" step="20" value="480">
+        <span class="value" id="board-size-value">480px</span>
+        <button type="button" id="board-size-reset">Reset</button>
+    </section>
+
+    <main>
+        <section class="demo-section">
+            <h2>Demo 1 · Starting Position (Static)</h2>
+            <p>Default configuration with the initial FEN, static orientation, and controls hidden.</p>
+            <sbs-chess id="chess-demo-1" class="widget-host"></sbs-chess>
+        </section>
+
+        <section class="demo-section">
+            <h2>Demo 2 · Interactive Sandbox</h2>
+            <p>Click any piece to explore legal replies, make moves with full rules enforcement, and scrub through the resulting history.</p>
+            <sbs-chess id="chess-demo-2" class="widget-host"></sbs-chess>
+        </section>
+
+        <section class="demo-section">
+            <h2>Demo 3 · Black Orientation + Compact Size</h2>
+            <p>Board rendered from a composed FEN facing Black with a reduced footprint, showing how authors can tune layout.</p>
+            <sbs-chess id="chess-demo-3" class="widget-host"></sbs-chess>
+        </section>
+
+        <section class="demo-section">
+            <h2>Demo 4 · Move Log Only (No Snapshots)</h2>
+            <p>Demonstrates graceful degradation when only SAN/figurine text is supplied—the board stays on the baseline FEN while the move list remains navigable.</p>
+            <sbs-chess id="chess-demo-4" class="widget-host"></sbs-chess>
+        </section>
+
+        <section class="demo-section">
+            <h2>Demo 5 · Minimal Board</h2>
+            <p>Only the board, pieces, and coordinate guides are visible—useful for tight layouts or inline diagrams.</p>
+            <sbs-chess id="chess-demo-5" class="widget-host"></sbs-chess>
+        </section>
+
+        <section class="demo-section">
+            <h2>Demo 6 · Half-Size Board</h2>
+            <p>Demonstrates the <code>size</code> parameter by rendering a full widget at 50% of the default board dimensions.</p>
+            <sbs-chess id="chess-demo-6" class="widget-host"></sbs-chess>
+        </section>
+
+        <section class="demo-section">
+            <h2>Demo 7 · Immortal Game Trainer</h2>
+            <p>Loads the opening phase of the Immortal Game so you can rewind, study, and continue playing the attack with full legality checks plus promotion handling.</p>
+            <sbs-chess id="chess-demo-7" class="widget-host"></sbs-chess>
+        </section>
+    </main>
+
+    <footer class="page-footer">
+        <p>Next steps: wire this component into the renderer pipeline and ship annotation overlays.</p>
+    </footer>
+
+    <script type="module" src="./demo.js"></script>
+</body>
+</html>
