@@ -36,6 +36,7 @@ export class BridgeWidget {
         this.parser = new PBNParser();
         this.parsedData = null;
         this.pbnData = null;
+        this._pendingSyncFrame = null;
     }
 
     load(pbnData) {
@@ -89,37 +90,61 @@ export class BridgeWidget {
         const table = document.createElement('div');
         table.className = 'bridge-table';
 
-        const hasWestHand = Boolean(hands && hands['W']);
-        const hasEastHand = Boolean(hands && hands['E']);
-        const hasBidding = Boolean(auction && auction.length > 0);
-        const hasWestContent = hasWestHand || Boolean(openingLead);
+        const hasNorth = this.hasHandData(hands?.N);
+        const hasSouth = this.hasHandData(hands?.S);
+        const hasWest = this.hasHandData(hands?.W);
+        const hasEast = this.hasHandData(hands?.E);
+        const hasLead = Boolean(openingLead);
+        const hasLeftColumn = hasWest || hasLead;
+        const hasRightColumn = hasEast;
 
-        if (!hasWestContent && !hasBidding) table.classList.add('no-west');
-        if (!hasEastHand) table.classList.add('no-east');
+        const columnCount = (hasLeftColumn ? 1 : 0) + 1 + (hasRightColumn ? 1 : 0);
+        const centerColumnIndex = hasLeftColumn ? 1 : 0;
 
-        ['N', 'W', 'E', 'S'].forEach(dir => {
+        const columns = [];
+        if (hasLeftColumn) columns.push('var(--hand-column-width, auto)');
+        columns.push('minmax(var(--center-column-width, 160px), auto)');
+        if (hasRightColumn) columns.push('var(--hand-column-width, auto)');
+        table.style.gridTemplateColumns = columns.join(' ');
+
+        const gridRows = [];
+        if (hasNorth) {
+            const row = new Array(columnCount).fill('.');
+            row[centerColumnIndex] = 'north';
+            gridRows.push(`"${row.join(' ')}"`);
+        }
+
+        {
+            const row = new Array(columnCount).fill('.');
+            if (hasWest) row[0] = 'west';
+            row[centerColumnIndex] = 'center';
+            if (hasEast) row[columnCount - 1] = 'east';
+            gridRows.push(`"${row.join(' ')}"`);
+        }
+
+        if (hasSouth) {
+            const row = new Array(columnCount).fill('.');
+            row[centerColumnIndex] = 'south';
+            gridRows.push(`"${row.join(' ')}"`);
+        }
+
+        table.style.gridTemplateAreas = gridRows.join('\n');
+        const centerRowNumber = hasNorth ? 2 : 1;
+
+        [['N', hasNorth], ['W', hasWest], ['E', hasEast], ['S', hasSouth]].forEach(([dir, hasHand]) => {
+            if (!hasHand) return;
+
             const hand = hands ? hands[dir] : null;
-
-            if (dir === 'W' && !hand && openingLead) {
-                const handDiv = document.createElement('div');
-                handDiv.className = 'hand hand-west hand-lead-only';
-                handDiv.innerHTML = this.renderLeadHTML(openingLead);
-                table.appendChild(handDiv);
-                return;
-            }
-
-            if (!hand && (dir === 'W' || dir === 'E')) {
-                return;
-            }
+            const dirKey = this.getDirName(dir, 'en').toLowerCase();
+            const slot = document.createElement('div');
+            slot.className = `hand-slot hand-slot-${dirKey}`;
 
             const handDiv = document.createElement('div');
-            handDiv.className = `hand hand-${this.getDirName(dir, 'en').toLowerCase()}`;
-            let content = this.renderHandHTML(dir, hand);
-            if (dir === 'W' && hand && openingLead) {
-                content += this.renderLeadHTML(openingLead, true);
-            }
-            handDiv.innerHTML = content;
-            table.appendChild(handDiv);
+            handDiv.className = 'hand';
+            handDiv.innerHTML = this.renderHandHTML(dir, hand);
+            slot.appendChild(handDiv);
+
+            table.appendChild(slot);
         });
 
         const centerDiv = document.createElement('div');
@@ -147,6 +172,16 @@ export class BridgeWidget {
         `;
         table.appendChild(centerDiv);
 
+        if (hasLead) {
+            const leadSection = document.createElement('div');
+            leadSection.className = 'lead-section';
+            leadSection.appendChild(this.renderLeadHTML(openingLead));
+            leadSection.dataset.align = hasWest ? 'top' : 'center';
+            leadSection.style.gridColumn = '1';
+            leadSection.style.gridRow = `${centerRowNumber}`;
+            table.appendChild(leadSection);
+        }
+
         if (auction && auction.length > 0) {
             const biddingDiv = document.createElement('div');
             biddingDiv.className = 'bidding-section';
@@ -155,20 +190,23 @@ export class BridgeWidget {
         }
 
         this.container.appendChild(table);
+        this.syncHandMetrics(table);
     }
 
-    renderLeadHTML(leadCard, isBelowHand = false) {
+    renderLeadHTML(leadCard) {
         const formattedLead = leadCard
             .replace(/S/g, '<span class="suit-S">♠</span>')
             .replace(/H/g, '<span class="suit-H">♥</span>')
             .replace(/D/g, '<span class="suit-D">♦</span>')
             .replace(/C/g, '<span class="suit-C">♣</span>');
 
-        const className = isBelowHand ? 'opening-lead-below' : 'opening-lead-standalone';
-        return `<div class="${className}">
+        const wrapper = document.createElement('div');
+        wrapper.className = 'lead-block';
+        wrapper.innerHTML = `
             <span class="lead-label">${this.t('Lead')}:</span>
             <span class="lead-value">${formattedLead}</span>
-        </div>`;
+        `;
+        return wrapper;
     }
 
     formatVul(vul) {
@@ -194,10 +232,7 @@ export class BridgeWidget {
 
     renderHandHTML(dir, hand) {
         const dirName = this.getDirName(dir);
-        if (!hand) {
-            return `<div class="hand-label">${dirName}</div>`;
-        }
-
+        const suitsData = hand || {};
         const suits = [
             { symbol: '♠', key: 'S', class: 'suit-S' },
             { symbol: '♥', key: 'H', class: 'suit-H' },
@@ -208,15 +243,51 @@ export class BridgeWidget {
         let html = `<div class="hand-label">${dirName}</div>`;
         html += '<div class="hand-suits">';
         suits.forEach(suit => {
+            const cards = typeof suitsData[suit.key] === 'string' && suitsData[suit.key].length > 0
+                ? suitsData[suit.key]
+                : '-';
             html += `
                 <div class="suit-row ${suit.class}">
                     <div class="suit-symbol">${suit.symbol}</div>
-                    <div class="suit-cards">${hand[suit.key] || ''}</div>
+                    <div class="suit-cards">${cards}</div>
                 </div>
             `;
         });
         html += '</div>';
         return html;
+    }
+
+    hasHandData(hand) {
+        if (!hand) return false;
+        return ['S', 'H', 'D', 'C'].some(key => typeof hand[key] === 'string' && hand[key].trim().length > 0);
+    }
+
+    syncHandMetrics(table) {
+        if (this._pendingSyncFrame) {
+            cancelAnimationFrame(this._pendingSyncFrame);
+        }
+
+        this._pendingSyncFrame = requestAnimationFrame(() => {
+            this._pendingSyncFrame = null;
+            const hands = Array.from(table.querySelectorAll('.hand'));
+            if (!hands.length) return;
+
+            let maxWidth = 0;
+            let maxHeight = 0;
+
+            hands.forEach(hand => {
+                const rect = hand.getBoundingClientRect();
+                maxWidth = Math.max(maxWidth, Math.ceil(rect.width));
+                maxHeight = Math.max(maxHeight, Math.ceil(rect.height));
+            });
+
+            if (maxWidth) {
+                table.style.setProperty('--hand-column-width', `${maxWidth}px`);
+            }
+            if (maxHeight) {
+                table.style.setProperty('--hand-block-height', `${maxHeight}px`);
+            }
+        });
     }
 
     formatContract(contract) {

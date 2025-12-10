@@ -47,99 +47,74 @@ template.innerHTML = `
 }
 
 .bridge-table {
+    --hand-column-width: auto;
+    --center-column-width: 160px;
+    --hand-block-height: auto;
     display: grid;
-    grid-template-areas:
-        "bidding north ."
-        "west center east"
-        ". south .";
-    grid-template-columns: minmax(auto, 1fr) 130px minmax(auto, 1fr);
-    grid-template-rows: auto auto auto;
-    gap: 8px;
+    grid-template-columns:
+        var(--hand-column-width, auto)
+        minmax(var(--center-column-width, 160px), auto)
+        var(--hand-column-width, auto);
+    grid-auto-rows: auto;
+    gap: 10px 16px;
     justify-content: center;
+    align-items: center;
+    justify-items: center;
 }
 
-.bridge-table.no-west {
-    grid-template-areas:
-        "north ."
-        "center east"
-        "south .";
-    grid-template-columns: 130px auto;
-    min-width: auto;
+.hand-slot {
+    width: var(--hand-column-width, auto);
+    display: flex;
+    justify-content: center;
+    justify-self: center;
 }
 
-.bridge-table.no-east {
-    grid-template-areas:
-        "bidding north"
-        "west center"
-        ". south";
-    grid-template-columns: auto 130px;
-    min-width: auto;
+.hand-slot-north {
+    grid-area: north;
+    align-self: end;
 }
 
-.bridge-table.no-west.no-east {
-    grid-template-areas:
-        "north"
-        "center"
-        "south";
-    grid-template-columns: 130px;
-    min-width: auto;
+.hand-slot-south {
+    grid-area: south;
+    align-self: start;
+}
+
+.hand-slot-west {
+    grid-area: west;
+    align-self: center;
+}
+
+.hand-slot-east {
+    grid-area: east;
+    align-self: center;
 }
 
 .hand {
     background: #fff;
-    padding: 6px 10px;
+    padding: 8px 12px;
     border-radius: 4px;
     border: 1px solid #eee;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1;
+    align-items: stretch;
+    gap: 6px;
     font-size: 0.95em;
-    height: fit-content;
-    max-width: 100%;
+    width: 100%;
     box-sizing: border-box;
-}
-
-.hand-north {
-    grid-area: north;
-    align-self: end;
-    margin-bottom: 2px;
-    width: 115px;
-    justify-self: center;
-}
-
-.hand-south {
-    grid-area: south;
-    align-self: start;
-    margin-top: 2px;
-    width: 115px;
-    justify-self: center;
-}
-
-.hand-west {
-    grid-area: west;
-    align-self: center;
-    width: 100%;
-}
-
-.hand-east {
-    grid-area: east;
-    align-self: center;
-    width: 100%;
+    min-height: var(--hand-block-height, auto);
 }
 
 .bidding-section {
-    grid-area: bidding;
+    grid-column: 1 / -1;
     background: #fff;
     border: 1px solid #eee;
     border-radius: 4px;
     padding: 8px;
     font-size: 0.9em;
-    align-self: start;
-    margin-left: 10px;
-    min-width: 180px;
+    box-sizing: border-box;
+    width: min(100%, 380px);
+    justify-self: center;
 }
 
 .hand-label {
@@ -155,7 +130,8 @@ template.innerHTML = `
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: fit-content;
+    width: 100%;
+    gap: 2px;
 }
 
 .suit-row {
@@ -195,8 +171,8 @@ template.innerHTML = `
     padding: 6px;
     font-size: 0.8em;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-    width: 120px;
-    height: 100px;
+    width: var(--center-column-width, 160px);
+    min-height: 110px;
     justify-self: center;
     align-self: center;
 }
@@ -220,12 +196,18 @@ template.innerHTML = `
 .contract-display {
     font-size: 1.4em;
     font-weight: bold;
-    margin: 4px 0;
-    padding: 4px 10px;
+    margin: 6px 0;
+    padding: 6px 12px;
     background: #f8f9fa;
     color: #212529;
     border-radius: 4px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    line-height: 1.1;
+    max-width: 110px;
 }
 
 .contract-display span {
@@ -263,33 +245,27 @@ template.innerHTML = `
     border-bottom: 1px solid #f1f1f1;
 }
 
-.opening-lead-below {
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px dashed #eee;
-    width: 100%;
-    text-align: center;
-}
-
-.opening-lead-standalone {
-    text-align: center;
-    font-weight: bold;
-}
-
-.hand-lead-only {
-    justify-content: center;
-    min-height: 60px;
-}
-
-.lead-label {
-    color: #888;
+.lead-block {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
     font-size: 0.9em;
-    margin-right: 4px;
+    background: none;
+    border: none;
+    padding: 0;
+    box-shadow: none;
 }
 
-.lead-value {
-    font-size: 1em;
-    font-weight: bold;
+.lead-section {
+    position: relative;
+    align-self: center;
+    justify-self: center;
+    text-align: center;
+}
+
+.lead-section[data-align="top"] {
+    align-self: start;
+    transform: translateY(calc(-1 * var(--hand-block-height, 0px) / 2 + 30px));
 }
 
 .lead-value span {

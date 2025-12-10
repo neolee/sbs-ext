@@ -30,6 +30,8 @@ data: |
   3NT Pass 4H Pass
   4NT Pass 5C Pass
   6H Pass Pass Pass
+  [Play "W"]
+  HT
 ```
 
 ## Example 2 · Full Deal (No Bidding)
