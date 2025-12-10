@@ -98,3 +98,7 @@ This document serves as a persistent context file for AI agents working on the `
 - Chess widget now derives axis visibility from a single helper so board-only + sticky layouts stay perfectly centered regardless of host CSS.
 - Renderer blocks share a new `parse_fence_config` + `escape_script_payload` utility, keeping bridge/chess modules smaller and preventing future duplication.
 - Sticky chess markdown received much longer narration to showcase the anchored board experience in docs and regenerated demo HTML via `render_samples.sh`.
+
+### 2025-12-10 Update (Chess & Bridge)
+- Chess widget now parses PGN tag pairs to surface event/site/date/scoring metadata alongside the board, and renderer demos were refreshed so this information is visible in `chess-demo.md`.
+- Bridge widget received a full layout pass: hand panels auto-resize symmetrically, optional sides collapse cleanly, bidding width stays within the widget, and the opening lead now anchors to the left column with mode-aware positioning.
