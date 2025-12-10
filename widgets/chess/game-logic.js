@@ -16,6 +16,7 @@ export function createLogicController() {
 
 const PGN_DEFAULT = '';
 const PGN_LOAD_OPTIONS = { strict: false };
+const PGN_TAG_PATTERN = /^\s*\[([A-Za-z0-9_]+)\s+"([^"]*)"\]\s*$/;
 const ECO_LOOKUP = ECO_LOOKUP_SOURCE || {};
 
 function isDefaultStart(fen) {
@@ -50,13 +51,47 @@ function normalizeFen(fen) {
     return fen.trim();
 }
 
+function splitPgnMetadata(pgn) {
+    const tags = {};
+    if (!pgn) {
+        return { tags, body: '' };
+    }
+    const lines = pgn.split(/\r?\n/);
+    const body = [];
+    lines.forEach(line => {
+        const trimmed = line.trim();
+        if (!trimmed) {
+            return;
+        }
+        const tagMatch = trimmed.match(PGN_TAG_PATTERN);
+        if (tagMatch) {
+            const [, key, value] = tagMatch;
+            if (key) {
+                tags[key] = value || '';
+            }
+            return;
+        }
+        body.push(trimmed);
+    });
+    const sanitized = body.join(' ').replace(/\s+/g, ' ').trim();
+    return { tags, body: sanitized };
+}
+
+export function extractPgnMetadata(pgn) {
+    return splitPgnMetadata(pgn).tags;
+}
+
 export function extractSanMovesFromPgn(pgn) {
     if (!pgn || !pgn.trim()) {
         return [];
     }
     const temp = new Chess();
     try {
-        temp.loadPgn(pgn, PGN_LOAD_OPTIONS);
+        const { body: sanitized } = splitPgnMetadata(pgn);
+        if (!sanitized) {
+            return [];
+        }
+        temp.loadPgn(sanitized, PGN_LOAD_OPTIONS);
         return temp.history();
     } catch (err) {
         console.warn('[sbs-chess] PGN parse failed', err.message);

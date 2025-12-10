@@ -11,7 +11,8 @@ import {
     createLogicController,
     PROMOTION_CHOICES,
     buildTimelineFromPgn,
-    classifyOpening
+    classifyOpening,
+    extractPgnMetadata
 } from './game-logic.js';
 
 const I18N = {
@@ -37,6 +38,7 @@ const I18N = {
         meta_opening: '开局',
         meta_orientation: '棋盘朝向',
         meta_size: '棋盘尺寸',
+        meta_result: '结果',
         timeline: '时间轴',
         moves: '着法列表',
         flip: '翻转',
@@ -84,6 +86,7 @@ const I18N = {
         meta_opening: 'Opening',
         meta_orientation: 'Orientation',
         meta_size: 'Size',
+        meta_result: 'Result',
         timeline: 'Timeline',
         moves: 'Moves',
         flip: 'Flip',
@@ -191,6 +194,7 @@ export class ChessWidget {
         this.timeline = [];
         this.staticMoves = [];
         this.layoutPreset = LAYOUT_PRESETS.full;
+        this.gameMetadata = null;
         this.applyConfig(this.config);
     }
 
@@ -275,6 +279,7 @@ export class ChessWidget {
 
     applyConfig(config) {
         this.config = { ...this.config, ...config };
+        this.gameMetadata = this.captureGameMetadata(this.config.pgn);
         const fenInput = this.config.fen;
         const normalizedFen = (!fenInput || fenInput.trim() === '' || fenInput.trim() === 'startpos')
             ? getDefaultFEN()
@@ -354,12 +359,22 @@ export class ChessWidget {
 
     renderHeader() {
         const header = document.createElement('header');
+        const stack = document.createElement('div');
+        stack.className = 'header-stack';
         const title = document.createElement('h3');
         title.textContent = this.config.title || 'Chess Diagram';
+        stack.appendChild(title);
+        const summary = this.getMetadataSummary();
+        if (summary) {
+            const summaryLine = document.createElement('p');
+            summaryLine.className = 'game-summary';
+            summaryLine.textContent = summary;
+            stack.appendChild(summaryLine);
+        }
         const mode = document.createElement('span');
         mode.className = 'status-pill';
         mode.textContent = this.config.interactive ? this.t('status_interactive') : this.t('status_display');
-        header.append(title, mode);
+        header.append(stack, mode);
         this.root.appendChild(header);
     }
 
@@ -633,6 +648,83 @@ export class ChessWidget {
 
     shouldShowAxes() {
         return Boolean(this.config.showAxes);
+    }
+
+    captureGameMetadata(rawPgn) {
+        if (!rawPgn || typeof rawPgn !== 'string') {
+            return null;
+        }
+        const tags = extractPgnMetadata(rawPgn);
+        return tags && Object.keys(tags).length ? tags : null;
+    }
+
+    getMetadataSummary() {
+        if (!this.gameMetadata) {
+            return '';
+        }
+        const pieces = [];
+        const matchup = this.buildMatchupLabel(this.gameMetadata);
+        if (matchup) {
+            pieces.push(matchup);
+        }
+        const venue = this.buildVenueLabel(this.gameMetadata);
+        if (venue) {
+            pieces.push(venue);
+        }
+        const resultLabel = this.buildResultLabel(this.gameMetadata);
+        if (resultLabel) {
+            pieces.push(resultLabel);
+        }
+        return pieces.join(' • ');
+    }
+
+    buildMatchupLabel(tags) {
+        const white = tags.White || tags.EventWhite;
+        const black = tags.Black || tags.EventBlack;
+        if (white && black) {
+            return `${white} vs ${black}`;
+        }
+        return white || black || '';
+    }
+
+    buildVenueLabel(tags) {
+        const tokens = [];
+        if (tags.Event) {
+            tokens.push(tags.Event);
+        }
+        if (tags.Site && tags.Site !== tags.Event) {
+            tokens.push(tags.Site);
+        }
+        const date = this.formatPgnDate(tags.Date);
+        if (date) {
+            tokens.push(date);
+        }
+        return tokens.join(' · ');
+    }
+
+    buildResultLabel(tags) {
+        if (!tags.Result) {
+            return '';
+        }
+        return `${this.t('meta_result') || 'Result'} ${tags.Result}`;
+    }
+
+    formatPgnDate(raw) {
+        if (!raw) {
+            return '';
+        }
+        const cleaned = raw.replace(/\?/g, '').trim();
+        if (!cleaned) {
+            return '';
+        }
+        const parts = cleaned.split('.').filter(Boolean);
+        if (!parts.length) {
+            return cleaned;
+        }
+        if (parts.length >= 3) {
+            return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+        }
+        return parts[0];
     }
 
     // Ensure the board keeps a fixed footprint even if CSS custom properties fail.

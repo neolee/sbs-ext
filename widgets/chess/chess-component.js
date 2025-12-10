@@ -79,6 +79,18 @@ const styles = `
     font-size: 1.1rem;
 }
 
+.header-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.game-summary {
+    margin: 0;
+    font-size: 0.8rem;
+    color: rgba(17, 24, 39, 0.7);
+}
+
 .status-pill {
     font-size: 0.85rem;
     color: #16a34a;
