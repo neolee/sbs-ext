@@ -13,7 +13,7 @@ def _stack(env: dict[str, Any]) -> list[dict[str, Any]]:
     return env.setdefault("_sbs_sticky_stack", [])
 
 
-def render_sticky(renderer, tokens: list[Token], idx: int, _options, env) -> str:  # type: ignore[override]
+def render_sticky(_, tokens: list[Token], idx: int, _options, env) -> str:
     token = tokens[idx]
     stack = _stack(env)
     if token.nesting == 1:
