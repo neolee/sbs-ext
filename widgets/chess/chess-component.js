@@ -1,4 +1,5 @@
 import { ChessWidget } from './chess-widget.js';
+import { createLightDomObserver, extractLightDomPayload } from '../shared/lightdom.js';
 
 const styles = `
 :host {
@@ -498,8 +499,9 @@ export class SBSChessDiagram extends HTMLElement {
         this._widget = null;
         this._explicitConfig = null;
         this._cachedPgn = undefined;
-        this._observer = new MutationObserver(() => {
-            if (!this._explicitConfig || typeof this._explicitConfig.pgn === 'undefined') {
+        this._observer = createLightDomObserver(this, {
+            shouldHandleMutation: () => !this._explicitConfig || typeof this._explicitConfig.pgn === 'undefined',
+            onMutation: () => {
                 this._cachedPgn = undefined;
                 this._applyConfig();
             }
@@ -507,7 +509,7 @@ export class SBSChessDiagram extends HTMLElement {
     }
 
     connectedCallback() {
-        this._observer.observe(this, { childList: true, subtree: true, characterData: true });
+        this._observer.connect();
         this._applyConfig();
     }
 
@@ -657,15 +659,11 @@ export class SBSChessDiagram extends HTMLElement {
     }
 
     _extractPgnFromLightDom() {
-        const script = this.querySelector('script[type="application/x-chess-pgn"]');
-        if (script) {
-            return script.textContent.trim();
-        }
-        const template = this.querySelector('template[data-type="pgn"]');
-        if (template) {
-            return template.innerHTML.trim();
-        }
-        return null;
+        return extractLightDomPayload(this, {
+            scriptType: 'application/x-chess-pgn',
+            templateType: 'pgn',
+            fallbackToTextContent: false
+        });
     }
 }
 

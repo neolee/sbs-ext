@@ -1,4 +1,5 @@
 import { BridgeWidget } from './bridge-widget.js';
+import { createLightDomObserver, extractLightDomPayload, normalizeAttributeEscapes } from '../shared/lightdom.js';
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -291,8 +292,9 @@ export class SBSBridgeDiagram extends HTMLElement {
         this._explicitData = null;
         this._attributeData = null;
         this._cachedLightDomData = null;
-        this._observer = new MutationObserver(() => {
-            if (!this._explicitData && !this._attributeData) {
+        this._observer = createLightDomObserver(this, {
+            shouldHandleMutation: () => !this._explicitData && !this._attributeData,
+            onMutation: () => {
                 this._cachedLightDomData = null;
                 this._render();
             }
@@ -300,7 +302,7 @@ export class SBSBridgeDiagram extends HTMLElement {
     }
 
     connectedCallback() {
-        this._observer.observe(this, { childList: true, subtree: true, characterData: true });
+        this._observer.connect();
         this._render();
     }
 
@@ -337,21 +339,15 @@ export class SBSBridgeDiagram extends HTMLElement {
     }
 
     _normalizeAttributeData(attrValue) {
-        return attrValue
-            .replace(/\\n/g, '\n')
-            .replace(/\\t/g, '\t');
+        return normalizeAttributeEscapes(attrValue);
     }
 
     _extractLightDomData() {
-        const script = this.querySelector('script[type="application/pbn"]');
-        if (script) {
-            return script.textContent.trim();
-        }
-        const template = this.querySelector('template[data-type="pbn"]');
-        if (template) {
-            return template.innerHTML.trim();
-        }
-        return (this.textContent || '').trim();
+        return extractLightDomPayload(this, {
+            scriptType: 'application/pbn',
+            templateType: 'pbn',
+            fallbackToTextContent: true
+        });
     }
 
     _render() {
