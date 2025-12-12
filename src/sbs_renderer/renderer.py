@@ -11,7 +11,7 @@ from markdown_it.token import Token
 from mdit_py_plugins.attrs import attrs_plugin
 from .bridge import BridgeBlock
 from .chess import ChessBlock
-from .sticky import use_sticky
+from .sticky import use_sticky, wrap_sticky_if_needed
 
 
 class _FenceRenderer(Protocol):
@@ -108,7 +108,7 @@ class SBSRenderer:
         def handler(token: Token, env: dict[str, Any]) -> str:
             self._note_widget_used(env, widget)
             block = block_factory(token.content)
-            return self._wrap_sticky_if_needed(block.to_html(), env)
+            return wrap_sticky_if_needed(block.to_html(), env)
 
         self._fence_handlers[lang] = handler
 
@@ -186,16 +186,4 @@ class SBSRenderer:
     def _note_widget_used(self, env: dict[str, Any], widget: str) -> None:
         env.setdefault("_sbs_used_widgets", set()).add(widget)
 
-    def _wrap_sticky_if_needed(self, html_block: str, env) -> str:
-        sticky_stack = env.get("_sbs_sticky_stack")
-        if sticky_stack:
-            state = sticky_stack[-1]
-            if not state.get("visual_done"):
-                state["visual_done"] = True
-                state["text_open"] = True
-                return (
-                    "<div class='sbs-sticky-figure'>"
-                    f"{html_block}"
-                    "</div>\n<div class='sbs-sticky-body'>"
-                )
-        return html_block
+    # Sticky wrapping is handled by sticky.wrap_sticky_if_needed.

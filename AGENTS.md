@@ -118,3 +118,7 @@ This document serves as a persistent context file for AI agents working on the `
 ### 2025-12-13 Update (Renderer Attributes Registry - Scaffold)
 - Added a no-op attribute handler registry in the renderer (modeled after `_register_fence`) so we can adopt SBS 1.1 `{ key=value }` attributes incrementally later.
 - The hook is wired into fence rendering but defaults to no behavior changes until specific attributes are registered.
+
+### 2025-12-13 Update (Sticky State Machine Simplification)
+- Sticky wrapping logic is now centralized in `sticky.wrap_sticky_if_needed`, so the renderer no longer manages per-container sticky flags.
+- Container open/close now matches the CSS contract (`.sbs-sticky-container` + optional `.sbs-sticky-body`), fixing previously mismatched closing comments and reducing state to two booleans.
