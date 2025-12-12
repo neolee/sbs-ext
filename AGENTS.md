@@ -102,3 +102,7 @@ This document serves as a persistent context file for AI agents working on the `
 ### 2025-12-10 Update (Chess & Bridge)
 - Chess widget now parses PGN tag pairs to surface event/site/date/scoring metadata alongside the board, and renderer demos were refreshed so this information is visible in `chess-demo.md`.
 - Bridge widget received a full layout pass: hand panels auto-resize symmetrically, optional sides collapse cleanly, bidding width stays within the widget, and the opening lead now anchors to the left column with mode-aware positioning.
+
+### 2025-12-12 Update (Themes in Shadow DOM)
+- Bridge + Chess web components now map `font-family` and core text/muted colors to the global `--sbs-*` theme variables so theme choices apply inside Shadow DOM.
+- Reduced hardcoded widget styling by deriving borders/shadows/background tints from theme-driven colors (keeping game-specific palettes like chessboard squares intact).

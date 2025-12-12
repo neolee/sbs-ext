@@ -3,19 +3,19 @@ import { createLightDomObserver, extractLightDomPayload } from '../shared/lightd
 
 const styles = `
 :host {
-    --chess-bg: #f5f7fb;
-    --chess-border: #d9e2ec;
-    --panel-bg: #ffffff;
-    --panel-muted: #708090;
-    --panel-heading: #1f2933;
+    --chess-bg: var(--sbs-page-bg);
+    --chess-border: var(--panel-muted);
+    --panel-bg: var(--sbs-page-bg);
+    --panel-muted: var(--sbs-muted-color, #708090);
+    --panel-heading: var(--sbs-text-color, currentColor);
     --square-light: #f0d9b5;
     --square-dark: #b58863;
     --square-highlight: #f6f669;
     --move-highlight: #2563eb;
     --board-size: 480px;
     display: block;
-    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: #111827;
+    font-family: var(--sbs-font-body);
+    color: var(--sbs-text-color);
 }
 
 :host([hidden]) {
@@ -33,7 +33,7 @@ const styles = `
 
 .sbs-chess-widget {
     --board-size: var(--board-size, 480px);
-    background: #fcfdff;
+    background: var(--panel-bg);
     border: 1px solid var(--chess-border);
     border-radius: 16px;
     padding: 1.25rem;
@@ -89,7 +89,7 @@ const styles = `
 .game-summary {
     margin: 0;
     font-size: 0.8rem;
-    color: rgba(17, 24, 39, 0.7);
+    color: var(--panel-muted);
 }
 
 .status-pill {
@@ -122,12 +122,12 @@ const styles = `
     height: var(--board-size);
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid #1f2933;
+    border: 1px solid var(--panel-heading);
 }
 
 .board-axis {
     font-size: clamp(0.55rem, calc(var(--board-size) / 24), 1.15rem);
-    color: rgba(17, 24, 39, 0.65);
+    color: var(--panel-muted);
     letter-spacing: 0.02em;
 }
 
@@ -214,7 +214,7 @@ const styles = `
 }
 
 .sidebar {
-    background: #f8fafc;
+    background: var(--panel-bg);
     border-radius: 12px;
     border: 1px solid var(--chess-border);
     padding: 1rem;
@@ -242,7 +242,7 @@ const styles = `
     padding: 0.5rem;
     border: 1px solid var(--chess-border);
     border-radius: 10px;
-    background: #fff;
+    background: var(--panel-bg);
 }
 
 .meta-label {
@@ -265,7 +265,7 @@ const styles = `
 .controls button {
     flex: 1;
     border: 1px solid var(--chess-border);
-    background: #fff;
+    background: var(--panel-bg);
     padding: 0.35rem 0.5rem;
     border-radius: 8px;
     font-size: 0.85rem;
@@ -285,7 +285,7 @@ const styles = `
 .move-list {
     border: 1px solid var(--chess-border);
     border-radius: 10px;
-    background: #fff;
+    background: var(--panel-bg);
     padding: 0.75rem;
     max-height: 200px;
     overflow-y: auto;
@@ -309,16 +309,16 @@ const styles = `
 .status-block {
     border: 1px solid var(--chess-border);
     border-radius: 10px;
-    background: #eef2ff;
+    background: var(--panel-bg);
     padding: 0.85rem;
     font-size: 0.9rem;
-    color: #1f2933;
+    color: var(--panel-heading);
 }
 
 .capture-panel {
     border: 1px solid var(--chess-border);
     border-radius: 10px;
-    background: #fff;
+    background: var(--panel-bg);
     padding: 0.75rem 1rem;
     display: flex;
     flex-direction: column;
@@ -347,7 +347,7 @@ const styles = `
 .notation-panel {
     border: 1px solid var(--chess-border);
     border-radius: 10px;
-    background: #fff;
+    background: var(--panel-bg);
     padding: 0.75rem 1rem;
     display: flex;
     flex-direction: column;
@@ -372,7 +372,7 @@ const styles = `
 .copy-button {
     border: 1px solid var(--chess-border);
     border-radius: 8px;
-    background: #f8fafc;
+    background: var(--panel-bg);
     padding: 0.2rem 0.6rem;
     font-size: 0.8rem;
     cursor: pointer;
@@ -390,7 +390,7 @@ const styles = `
 
 .notation-field {
     margin: 0;
-    font-family: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+    font-family: monospace;
     font-size: 0.8rem;
     line-height: 1.4;
     border: 1px solid var(--chess-border);
@@ -398,7 +398,7 @@ const styles = `
     padding: 0.5rem;
     max-height: 110px;
     overflow: auto;
-    background: #fdfdfd;
+    background: var(--panel-bg);
     white-space: pre-wrap;
     word-break: break-word;
 }
@@ -436,7 +436,7 @@ const styles = `
 }
 
 .promotion-dialog {
-    background: #fff;
+    background: var(--panel-bg);
     border-radius: 14px;
     padding: 1rem 1.25rem;
     max-width: 260px;
@@ -458,7 +458,7 @@ const styles = `
     border: 1px solid var(--chess-border);
     border-radius: 10px;
     padding: 0.45rem 0.5rem;
-    background: #f8fafc;
+    background: var(--panel-bg);
     cursor: pointer;
     font-size: 0.9rem;
 }

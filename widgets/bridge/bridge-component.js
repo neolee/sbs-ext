@@ -5,20 +5,22 @@ const template = document.createElement('template');
 template.innerHTML = `
 <style>
 :host {
-    --bridge-bg-color: #f8f9fa;
-    --bridge-border-color: #dee2e6;
-    --bridge-text-color: #212529;
-    --suit-spade-color: #000;
+    --bridge-bg-color: var(--sbs-page-bg);
+    --bridge-border-color: var(--bridge-muted-color);
+    --bridge-text-color: var(--sbs-text-color);
+    --bridge-muted-color: var(--sbs-muted-color);
+    --suit-spade-color: currentColor;
     --suit-heart-color: #d00;
     --suit-diamond-color: #d60;
-    --suit-club-color: #008;
+    --suit-club-color: currentColor;
     --table-bg-color: #35654d;
-    --card-bg-color: #fff;
+    --card-bg-color: var(--sbs-page-bg);
     display: inline-block;
+    font-family: var(--sbs-font-body);
+    color: var(--bridge-text-color);
 }
 
 .sbs-bridge-widget {
-    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     width: fit-content;
     margin: 20px auto;
     border: 1px solid var(--bridge-border-color);
@@ -38,10 +40,10 @@ template.innerHTML = `
 
 .bridge-meta-header {
     font-size: 0.8em;
-    color: #888;
+    color: var(--bridge-muted-color);
     margin-bottom: 10px;
     padding-bottom: 5px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--bridge-border-color);
     display: flex;
     gap: 15px;
     justify-content: center;
@@ -91,10 +93,10 @@ template.innerHTML = `
 }
 
 .hand {
-    background: #fff;
+    background: var(--card-bg-color);
     padding: 8px 12px;
     border-radius: 4px;
-    border: 1px solid #eee;
+    border: 1px solid var(--bridge-border-color);
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     display: flex;
     flex-direction: column;
@@ -108,8 +110,8 @@ template.innerHTML = `
 
 .bidding-section {
     grid-column: 1 / -1;
-    background: #fff;
-    border: 1px solid #eee;
+    background: var(--card-bg-color);
+    border: 1px solid var(--bridge-border-color);
     border-radius: 4px;
     padding: 8px;
     font-size: 0.9em;
@@ -124,7 +126,7 @@ template.innerHTML = `
     margin-bottom: 4px;
     text-transform: uppercase;
     font-size: 0.75em;
-    color: #888;
+    color: var(--bridge-muted-color);
 }
 
 .hand-suits {
@@ -199,8 +201,8 @@ template.innerHTML = `
     font-weight: bold;
     margin: 6px 0;
     padding: 6px 12px;
-    background: #f8f9fa;
-    color: #212529;
+    background: var(--bridge-bg-color);
+    color: var(--bridge-text-color);
     border-radius: 4px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.15);
     display: inline-flex;
@@ -222,7 +224,7 @@ template.innerHTML = `
     font-weight: bold;
     margin-bottom: 8px;
     text-align: center;
-    color: #555;
+    color: var(--bridge-text-color);
     text-transform: uppercase;
 }
 
@@ -234,16 +236,16 @@ template.innerHTML = `
 }
 
 .bidding-table th {
-    background-color: #f8f9fa;
+    background-color: var(--bridge-bg-color);
     padding: 4px;
-    border-bottom: 1px solid #dee2e6;
-    color: #666;
+    border-bottom: 1px solid var(--bridge-border-color);
+    color: var(--bridge-muted-color);
     font-weight: 600;
 }
 
 .bidding-table td {
     padding: 4px;
-    border-bottom: 1px solid #f1f1f1;
+    border-bottom: 1px solid var(--bridge-border-color);
 }
 
 .lead-block {
