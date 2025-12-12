@@ -110,3 +110,7 @@ This document serves as a persistent context file for AI agents working on the `
 ### 2025-12-12 Update (Widgets Entry Script)
 +- Added a single `widgets/index.js` entry module that dynamically imports the bridge/chess widget bundles based on which custom elements are present on the page.
 +- Updated the Python renderer to inject only this entry script when any SBS widget is used, keeping documents without widgets free of extra JS.
+
+### 2025-12-13 Update (Renderer Fence Registry - Generic Registration)
+- Fence handlers are now registered via a small helper (`_register_fence`) that wires together: widget usage tracking, block parsing, HTML serialization, and sticky wrapping.
+- Adding a new `sbs-*` fenced block no longer requires a bespoke handler method—just a single registry entry.

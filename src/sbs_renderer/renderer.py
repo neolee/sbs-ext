@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import html
 from textwrap import dedent
-from typing import Any, Optional, Protocol, cast
+from typing import Any, Callable, Optional, Protocol, cast
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
@@ -20,6 +20,10 @@ class _FenceRenderer(Protocol):
     def render_token(self, tokens: list[Token], idx: int, options, env) -> str: ...
 
 
+class _HtmlBlock(Protocol):
+    def to_html(self) -> str: ...
+
+
 class SBSRenderer:
     """Turn SBS flavored Markdown into HTML pages."""
 
@@ -31,7 +35,28 @@ class SBSRenderer:
         use_sticky(self.md)
         self._renderer: _FenceRenderer = cast(_FenceRenderer, self.md.renderer)
         self._default_fence = self._renderer.rules.get("fence")
+        self._fence_handlers: dict[str, Callable[[Token, dict[str, Any]], str]] = {}
+        self._register_fence_handlers()
         self._renderer.rules["fence"] = self._render_fence
+
+    def _register_fence_handlers(self) -> None:
+        self._fence_handlers = {}
+        self._register_fence("sbs-bridge", widget="bridge", block_factory=BridgeBlock.from_fence)
+        self._register_fence("sbs-chess", widget="chess", block_factory=ChessBlock.from_fence)
+
+    def _register_fence(
+        self,
+        lang: str,
+        *,
+        widget: str,
+        block_factory: Callable[[str], _HtmlBlock],
+    ) -> None:
+        def handler(token: Token, env: dict[str, Any]) -> str:
+            self._note_widget_used(env, widget)
+            block = block_factory(token.content)
+            return self._wrap_sticky_if_needed(block.to_html(), env)
+
+        self._fence_handlers[lang] = handler
 
     # ------------------------------------------------------------------
     # Rendering
@@ -92,22 +117,18 @@ class SBSRenderer:
         token = tokens[idx]
         info = (token.info or "").strip().split(None, 1)
         fence_lang = info[0] if info else ""
-        if fence_lang == "sbs-bridge":
-            env.setdefault("_sbs_used_widgets", set()).add("bridge")
-            block = BridgeBlock.from_fence(token.content)
-            html_block = block.to_html()
-            return self._wrap_sticky_if_needed(html_block, env)
 
-        if fence_lang == "sbs-chess":
-            env.setdefault("_sbs_used_widgets", set()).add("chess")
-            block = ChessBlock.from_fence(token.content)
-            html_block = block.to_html()
-            return self._wrap_sticky_if_needed(html_block, env)
+        handler = self._fence_handlers.get(fence_lang)
+        if handler is not None:
+            return handler(token, env)
 
         if self._default_fence:
             return self._default_fence(tokens, idx, options, env)
 
         return self._renderer.render_token(tokens, idx, options, env)
+
+    def _note_widget_used(self, env: dict[str, Any], widget: str) -> None:
+        env.setdefault("_sbs_used_widgets", set()).add(widget)
 
     def _wrap_sticky_if_needed(self, html_block: str, env) -> str:
         sticky_stack = env.get("_sbs_sticky_stack")
