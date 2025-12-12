@@ -122,3 +122,7 @@ This document serves as a persistent context file for AI agents working on the `
 ### 2025-12-13 Update (Sticky State Machine Simplification)
 - Sticky wrapping logic is now centralized in `sticky.wrap_sticky_if_needed`, so the renderer no longer manages per-container sticky flags.
 - Container open/close now matches the CSS contract (`.sbs-sticky-container` + optional `.sbs-sticky-body`), fixing previously mismatched closing comments and reducing state to two booleans.
+
+### 2025-12-13 Update (BridgeWidget DOM Construction)
+- Refactored `BridgeWidget` to build its UI using DOM APIs (`createElement`, `DocumentFragment`, `replaceChildren`) instead of `innerHTML`, keeping the same CSS class hooks and layout.
+- This reduces HTML string concatenation and makes future layout changes safer and easier to maintain.

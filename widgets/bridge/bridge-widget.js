@@ -60,7 +60,10 @@ export class BridgeWidget {
         if (!this.container) return;
 
         if (!this.parsedData) {
-            this.container.innerHTML = `<div class="bridge-error">${this.t('MissingData')}</div>`;
+            const error = document.createElement('div');
+            error.className = 'bridge-error';
+            error.textContent = this.t('MissingData');
+            this.container.replaceChildren(error);
             return;
         }
 
@@ -72,7 +75,7 @@ export class BridgeWidget {
             openingLead = play[0];
         }
 
-        this.container.innerHTML = '';
+        this.container.replaceChildren();
 
         const metaInfo = [];
         if (tags.Event) metaInfo.push(`${this.t('Event')}: ${tags.Event}`);
@@ -83,7 +86,7 @@ export class BridgeWidget {
         if (metaInfo.length > 0) {
             const header = document.createElement('div');
             header.className = 'bridge-meta-header';
-            header.innerText = metaInfo.join(' | ');
+            header.textContent = metaInfo.join(' | ');
             this.container.appendChild(header);
         }
 
@@ -141,7 +144,7 @@ export class BridgeWidget {
 
             const handDiv = document.createElement('div');
             handDiv.className = 'hand';
-            handDiv.innerHTML = this.renderHandHTML(dir, hand);
+            handDiv.appendChild(this.renderHandDom(dir, hand));
             slot.appendChild(handDiv);
 
             table.appendChild(slot);
@@ -153,29 +156,23 @@ export class BridgeWidget {
         const vulText = this.formatVul(tags.Vulnerable);
         const dealerText = this.getDirName(tags.Dealer) || '-';
         const declarerText = this.getDirName(tags.Declarer) || '-';
-        const contractText = this.formatContract(tags.Contract) || '-';
+        const contractFragment = this.renderContractDom(tags.Contract);
 
-        centerDiv.innerHTML = `
-            <div class="center-info-row">
-                <span class="center-label">${this.t('Vulnerable')}:</span>
-                <span class="center-value">${vulText}</span>
-            </div>
-            <div class="center-info-row">
-                <span class="center-label">${this.t('Dealer')}:</span>
-                <span class="center-value">${dealerText}</span>
-            </div>
-            <div class="contract-display">${contractText}</div>
-            <div class="center-info-row">
-                <span class="center-label">${this.t('Declarer')}:</span>
-                <span class="center-value">${declarerText}</span>
-            </div>
-        `;
+        centerDiv.appendChild(this.renderCenterInfoRowDom(`${this.t('Vulnerable')}:`, vulText));
+        centerDiv.appendChild(this.renderCenterInfoRowDom(`${this.t('Dealer')}:`, dealerText));
+
+        const contractDisplay = document.createElement('div');
+        contractDisplay.className = 'contract-display';
+        contractDisplay.appendChild(contractFragment);
+        centerDiv.appendChild(contractDisplay);
+
+        centerDiv.appendChild(this.renderCenterInfoRowDom(`${this.t('Declarer')}:`, declarerText));
         table.appendChild(centerDiv);
 
         if (hasLead) {
             const leadSection = document.createElement('div');
             leadSection.className = 'lead-section';
-            leadSection.appendChild(this.renderLeadHTML(openingLead));
+            leadSection.appendChild(this.renderLeadDom(openingLead));
             leadSection.dataset.align = hasWest ? 'top' : 'center';
             leadSection.style.gridColumn = '1';
             leadSection.style.gridRow = `${centerRowNumber}`;
@@ -185,7 +182,7 @@ export class BridgeWidget {
         if (auction && auction.length > 0) {
             const biddingDiv = document.createElement('div');
             biddingDiv.className = 'bidding-section';
-            biddingDiv.innerHTML = this.renderAuctionHTML(tags.Dealer, auction);
+            biddingDiv.appendChild(this.renderAuctionDom(tags.Dealer, auction));
             table.appendChild(biddingDiv);
         }
 
@@ -193,19 +190,47 @@ export class BridgeWidget {
         this.syncHandMetrics(table);
     }
 
-    renderLeadHTML(leadCard) {
-        const formattedLead = leadCard
-            .replace(/S/g, '<span class="suit-S">♠</span>')
-            .replace(/H/g, '<span class="suit-H">♥</span>')
-            .replace(/D/g, '<span class="suit-D">♦</span>')
-            .replace(/C/g, '<span class="suit-C">♣</span>');
+    renderSuitTextDom(text) {
+        const frag = document.createDocumentFragment();
+        const suitSymbols = { S: '♠', H: '♥', D: '♦', C: '♣' };
 
+        let buffer = '';
+        const flush = () => {
+            if (!buffer) return;
+            frag.appendChild(document.createTextNode(buffer));
+            buffer = '';
+        };
+
+        const raw = String(text ?? '');
+        for (const ch of raw) {
+            if (ch in suitSymbols) {
+                flush();
+                const span = document.createElement('span');
+                span.className = `suit-${ch}`;
+                span.textContent = suitSymbols[ch];
+                frag.appendChild(span);
+            } else {
+                buffer += ch;
+            }
+        }
+        flush();
+        return frag;
+    }
+
+    renderLeadDom(leadCard) {
         const wrapper = document.createElement('div');
         wrapper.className = 'lead-block';
-        wrapper.innerHTML = `
-            <span class="lead-label">${this.t('Lead')}:</span>
-            <span class="lead-value">${formattedLead}</span>
-        `;
+
+        const label = document.createElement('span');
+        label.className = 'lead-label';
+        label.textContent = `${this.t('Lead')}:`;
+
+        const value = document.createElement('span');
+        value.className = 'lead-value';
+        value.appendChild(this.renderSuitTextDom(leadCard));
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(value);
         return wrapper;
     }
 
@@ -230,31 +255,75 @@ export class BridgeWidget {
         return this.t(key);
     }
 
-    renderHandHTML(dir, hand) {
-        const dirName = this.getDirName(dir);
+    renderHandDom(dir, hand) {
+        const frag = document.createDocumentFragment();
+
+        const label = document.createElement('div');
+        label.className = 'hand-label';
+        label.textContent = this.getDirName(dir);
+        frag.appendChild(label);
+
+        const suits = document.createElement('div');
+        suits.className = 'hand-suits';
+
         const suitsData = hand || {};
-        const suits = [
-            { symbol: '♠', key: 'S', class: 'suit-S' },
-            { symbol: '♥', key: 'H', class: 'suit-H' },
-            { symbol: '♦', key: 'D', class: 'suit-D' },
-            { symbol: '♣', key: 'C', class: 'suit-C' }
+        const rows = [
+            { symbol: '♠', key: 'S', className: 'suit-S' },
+            { symbol: '♥', key: 'H', className: 'suit-H' },
+            { symbol: '♦', key: 'D', className: 'suit-D' },
+            { symbol: '♣', key: 'C', className: 'suit-C' },
         ];
 
-        let html = `<div class="hand-label">${dirName}</div>`;
-        html += '<div class="hand-suits">';
-        suits.forEach(suit => {
-            const cards = typeof suitsData[suit.key] === 'string' && suitsData[suit.key].length > 0
-                ? suitsData[suit.key]
-                : '-';
-            html += `
-                <div class="suit-row ${suit.class}">
-                    <div class="suit-symbol">${suit.symbol}</div>
-                    <div class="suit-cards">${cards}</div>
-                </div>
-            `;
-        });
-        html += '</div>';
-        return html;
+        for (const suit of rows) {
+            const row = document.createElement('div');
+            row.className = `suit-row ${suit.className}`;
+
+            const symbol = document.createElement('div');
+            symbol.className = 'suit-symbol';
+            symbol.textContent = suit.symbol;
+
+            const cards = document.createElement('div');
+            cards.className = 'suit-cards';
+            const value =
+                typeof suitsData[suit.key] === 'string' && suitsData[suit.key].length > 0
+                    ? suitsData[suit.key]
+                    : '-';
+            cards.textContent = value;
+
+            row.appendChild(symbol);
+            row.appendChild(cards);
+            suits.appendChild(row);
+        }
+
+        frag.appendChild(suits);
+        return frag;
+    }
+
+    renderCenterInfoRowDom(labelText, valueText) {
+        const row = document.createElement('div');
+        row.className = 'center-info-row';
+
+        const label = document.createElement('span');
+        label.className = 'center-label';
+        label.textContent = labelText;
+
+        const value = document.createElement('span');
+        value.className = 'center-value';
+        value.textContent = valueText;
+
+        row.appendChild(label);
+        row.appendChild(value);
+        return row;
+    }
+
+    renderContractDom(contract) {
+        if (!contract) {
+            return document.createTextNode('-');
+        }
+        if (contract === 'Pass') {
+            return document.createTextNode(this.t('Pass'));
+        }
+        return this.renderSuitTextDom(contract);
     }
 
     hasHandData(hand) {
@@ -290,78 +359,72 @@ export class BridgeWidget {
         });
     }
 
-    formatContract(contract) {
-        if (!contract || contract === 'Pass') return this.t('Pass');
-        return contract
-            .replace(/S/g, '<span class="suit-S">♠</span>')
-            .replace(/H/g, '<span class="suit-H">♥</span>')
-            .replace(/D/g, '<span class="suit-D">♦</span>')
-            .replace(/C/g, '<span class="suit-C">♣</span>')
-            .replace(/NT/g, 'NT');
-    }
-
-    renderAuctionHTML(dealer, auction) {
+    renderAuctionDom(dealer, auction) {
         const players = ['W', 'N', 'E', 'S'];
-        let html = `
-            <div class="bidding-title">${this.t('Bidding')}</div>
-            <table class="bidding-table">
-                <thead>
-                    <tr>
-                        <th>${this.t('W')}</th>
-                        <th>${this.t('N')}</th>
-                        <th>${this.t('E')}</th>
-                        <th>${this.t('S')}</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
 
-        let rowHtml = '<tr>';
+        const wrapper = document.createElement('div');
+
+        const title = document.createElement('div');
+        title.className = 'bidding-title';
+        title.textContent = this.t('Bidding');
+        wrapper.appendChild(title);
+
+        const table = document.createElement('table');
+        table.className = 'bidding-table';
+
+        const thead = document.createElement('thead');
+        const headRow = document.createElement('tr');
+        for (const player of players) {
+            const th = document.createElement('th');
+            th.textContent = this.t(player);
+            headRow.appendChild(th);
+        }
+        thead.appendChild(headRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        let row = document.createElement('tr');
         let currentIdx = 0;
+
         const dealerIdx = players.indexOf(dealer);
         if (dealerIdx !== -1) {
             for (let i = 0; i < dealerIdx; i++) {
-                rowHtml += '<td></td>';
+                row.appendChild(document.createElement('td'));
                 currentIdx++;
             }
         }
 
-        auction.forEach(call => {
-            if (call === 'AP') return;
+        for (const call of auction) {
+            if (call === 'AP') continue;
 
-            let formattedCall = call;
+            const td = document.createElement('td');
             if (call === 'Pass') {
-                formattedCall = this.t('Pass');
+                td.textContent = this.t('Pass');
             } else {
-                formattedCall = call
-                    .replace(/S/g, '<span class="suit-S">♠</span>')
-                    .replace(/H/g, '<span class="suit-H">♥</span>')
-                    .replace(/D/g, '<span class="suit-D">♦</span>')
-                    .replace(/C/g, '<span class="suit-C">♣</span>');
+                td.appendChild(this.renderSuitTextDom(call));
             }
-
-            rowHtml += `<td>${formattedCall}</td>`;
+            row.appendChild(td);
             currentIdx++;
 
             if (currentIdx % 4 === 0) {
-                rowHtml += '</tr><tr>';
+                tbody.appendChild(row);
+                row = document.createElement('tr');
             }
-        });
-
-        while (currentIdx % 4 !== 0) {
-            rowHtml += '<td></td>';
-            currentIdx++;
         }
 
-        if (rowHtml.endsWith('<tr>')) {
-            rowHtml = rowHtml.slice(0, -4);
-        } else {
-            rowHtml += '</tr>';
+        if (currentIdx % 4 !== 0) {
+            while (currentIdx % 4 !== 0) {
+                row.appendChild(document.createElement('td'));
+                currentIdx++;
+            }
+            tbody.appendChild(row);
+        } else if (row.childNodes.length > 0) {
+            tbody.appendChild(row);
         }
 
-        html += rowHtml;
-        html += '</tbody></table>';
-        return html;
+        table.appendChild(tbody);
+        wrapper.appendChild(table);
+        return wrapper;
     }
 }
 
