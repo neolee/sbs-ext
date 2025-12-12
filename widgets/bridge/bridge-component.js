@@ -308,12 +308,14 @@ export class SBSBridgeDiagram extends HTMLElement {
     }
 
     connectedCallback() {
+        this._widget.connect?.();
         this._observer.connect();
         this._render();
     }
 
     disconnectedCallback() {
         this._observer.disconnect();
+        this._widget.disconnect?.();
     }
 
     attributeChangedCallback(name, oldValue, newValue) {

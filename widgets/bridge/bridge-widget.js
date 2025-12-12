@@ -37,6 +37,28 @@ export class BridgeWidget {
         this.parsedData = null;
         this.pbnData = null;
         this._pendingSyncFrame = null;
+
+        this._table = null;
+        this._resizeObserver = null;
+        this._resizeFallbackHandler = null;
+        this._resizeSyncEnabled = false;
+    }
+
+    connect() {
+        this._resizeSyncEnabled = true;
+        this._ensureResizeSync();
+    }
+
+    disconnect() {
+        this._resizeSyncEnabled = false;
+
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect();
+        }
+
+        if (this._resizeFallbackHandler) {
+            window.removeEventListener('resize', this._resizeFallbackHandler);
+        }
     }
 
     load(pbnData) {
@@ -60,6 +82,8 @@ export class BridgeWidget {
         if (!this.container) return;
 
         if (!this.parsedData) {
+            this._table = null;
+            this._ensureResizeSync();
             const error = document.createElement('div');
             error.className = 'bridge-error';
             error.textContent = this.t('MissingData');
@@ -187,7 +211,42 @@ export class BridgeWidget {
         }
 
         this.container.appendChild(table);
+        this._table = table;
+        this._ensureResizeSync();
         this.syncHandMetrics(table);
+    }
+
+    _ensureResizeSync() {
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect();
+        }
+
+        if (this._resizeFallbackHandler) {
+            window.removeEventListener('resize', this._resizeFallbackHandler);
+        }
+
+        if (!this._resizeSyncEnabled || !this._table) {
+            return;
+        }
+
+        if (typeof ResizeObserver !== 'undefined') {
+            if (!this._resizeObserver) {
+                this._resizeObserver = new ResizeObserver(() => {
+                    if (this._table) {
+                        this.syncHandMetrics(this._table);
+                    }
+                });
+            }
+            this._resizeObserver.observe(this._table);
+            return;
+        }
+
+        this._resizeFallbackHandler = () => {
+            if (this._table) {
+                this.syncHandMetrics(this._table);
+            }
+        };
+        window.addEventListener('resize', this._resizeFallbackHandler, { passive: true });
     }
 
     renderSuitTextDom(text) {
