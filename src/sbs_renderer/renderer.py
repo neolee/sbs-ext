@@ -24,6 +24,17 @@ class _HtmlBlock(Protocol):
     def to_html(self) -> str: ...
 
 
+class _AttrHandler(Protocol):
+    def __call__(
+        self,
+        *,
+        token: Token,
+        env: dict[str, Any],
+        name: str,
+        value: str | None,
+    ) -> None: ...
+
+
 class SBSRenderer:
     """Turn SBS flavored Markdown into HTML pages."""
 
@@ -36,13 +47,56 @@ class SBSRenderer:
         self._renderer: _FenceRenderer = cast(_FenceRenderer, self.md.renderer)
         self._default_fence = self._renderer.rules.get("fence")
         self._fence_handlers: dict[str, Callable[[Token, dict[str, Any]], str]] = {}
+        self._attr_handlers: dict[str, _AttrHandler] = {}
         self._register_fence_handlers()
+        self._register_attr_handlers()
         self._renderer.rules["fence"] = self._render_fence
 
     def _register_fence_handlers(self) -> None:
         self._fence_handlers = {}
         self._register_fence("sbs-bridge", widget="bridge", block_factory=BridgeBlock.from_fence)
         self._register_fence("sbs-chess", widget="chess", block_factory=ChessBlock.from_fence)
+
+    def _register_attr_handlers(self) -> None:
+        """Register attribute handlers.
+
+        SBS 1.1 supports attributes via `{ key=value }` syntax.
+        We already enable the parser plugin (`attrs_plugin`) so attrs are
+        available on tokens, but we intentionally keep behavior as a no-op
+        until we decide which attrs become supported extensions.
+
+        Future intent:
+        - Register `runnable`, layout, sizing, etc.
+        - Attach computed data to `env` for document-level asset injection.
+        - Optionally modify token attrs for stable HTML output.
+        """
+
+        self._attr_handlers = {}
+
+    def _register_attr(self, name: str, handler: _AttrHandler) -> None:
+        """Register a single attribute handler.
+
+        Handlers should be side-effect-only and keep output stable unless the
+        project explicitly adopts that attribute as part of the SBS extensions.
+        """
+
+        self._attr_handlers[name] = handler
+
+    def _apply_registered_attrs(self, token: Token, env: dict[str, Any]) -> None:
+        """Apply registered attrs to a token.
+
+        This is currently a no-op because no attrs are registered. It's a
+        pre-wired hook so we can adopt attributes incrementally later.
+        """
+
+        if not self._attr_handlers:
+            return
+
+        for name, value in token.attrs or []:
+            handler = self._attr_handlers.get(name)
+            if handler is None:
+                continue
+            handler(token=token, env=env, name=name, value=value)
 
     def _register_fence(
         self,
@@ -117,6 +171,8 @@ class SBSRenderer:
         token = tokens[idx]
         info = (token.info or "").strip().split(None, 1)
         fence_lang = info[0] if info else ""
+
+        self._apply_registered_attrs(token, env)
 
         handler = self._fence_handlers.get(fence_lang)
         if handler is not None:

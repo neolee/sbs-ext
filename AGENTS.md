@@ -114,3 +114,7 @@ This document serves as a persistent context file for AI agents working on the `
 ### 2025-12-13 Update (Renderer Fence Registry - Generic Registration)
 - Fence handlers are now registered via a small helper (`_register_fence`) that wires together: widget usage tracking, block parsing, HTML serialization, and sticky wrapping.
 - Adding a new `sbs-*` fenced block no longer requires a bespoke handler method—just a single registry entry.
+
+### 2025-12-13 Update (Renderer Attributes Registry - Scaffold)
+- Added a no-op attribute handler registry in the renderer (modeled after `_register_fence`) so we can adopt SBS 1.1 `{ key=value }` attributes incrementally later.
+- The hook is wired into fence rendering but defaults to no behavior changes until specific attributes are registered.
