@@ -31,4 +31,11 @@ uv run python -m sbs_renderer \
 	--widgets-dir "../widgets" \
 	--theme "classic"
 
+uv run python -m sbs_renderer \
+	../tests/markdown/image-attrs.md \
+	../dist/image-attrs.html \
+	--title "Image Attributes" \
+	--widgets-dir "../widgets" \
+	--theme "default"
+
 cd ..

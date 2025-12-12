@@ -105,7 +105,7 @@ This document serves as a persistent context file for AI agents working on the `
 
 ### 2025-12-12 Update (Themes in Shadow DOM)
 - Bridge + Chess web components now map `font-family` and core text/muted colors to the global `--sbs-*` theme variables so theme choices apply inside Shadow DOM.
-- Reduced hardcoded widget styling by deriving borders/shadows/background tints from theme-driven colors (keeping game-specific palettes like chessboard squares intact).
+- Reduced hard-coded widget styling by deriving borders/shadows/background tints from theme-driven colors (keeping game-specific palettes like chessboard squares intact).
 
 ### 2025-12-12 Update (Widgets Entry Script)
 +- Added a single `widgets/index.js` entry module that dynamically imports the bridge/chess widget bundles based on which custom elements are present on the page.
@@ -123,6 +123,12 @@ This document serves as a persistent context file for AI agents working on the `
 - Sticky wrapping logic is now centralized in `sticky.wrap_sticky_if_needed`, so the renderer no longer manages per-container sticky flags.
 - Container open/close now matches the CSS contract (`.sbs-sticky-container` + optional `.sbs-sticky-body`), fixing previously mismatched closing comments and reducing state to two booleans.
 
-### 2025-12-13 Update (BridgeWidget DOM Construction)
+### 2025-12-13 Update (Bridge Widget DOM Construction)
 - Refactored `BridgeWidget` to build its UI using DOM APIs (`createElement`, `DocumentFragment`, `replaceChildren`) instead of `innerHTML`, keeping the same CSS class hooks and layout.
 - This reduces HTML string concatenation and makes future layout changes safer and easier to maintain.
+
+### 2025-12-13 Update (Image Attributes - First Adoption)
+- Implemented the first real SBS 1.1 attribute extension: image display attributes `{ align=..., scale=..., width=..., height=... }`.
+- Renderer now normalizes comma-separated attribute syntax (per spec examples) into the underlying parser format and applies the attributes as computed inline styles on `<img>`.
+- Image `scale` now uses a browser runtime helper (`widgets/image-attrs.js`) so scaling is strictly relative to `naturalWidth/naturalHeight` for both local and remote images.
+- Renderer emits `data-sbs-scale` on `<img>` when `{ scale=... }` is present and injects `widgets/image-attrs.js` only when needed.

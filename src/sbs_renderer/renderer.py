@@ -11,6 +11,7 @@ from markdown_it.token import Token
 from mdit_py_plugins.attrs import attrs_plugin
 from .bridge import BridgeBlock
 from .chess import ChessBlock
+from .image_attrs import apply_image_display_attrs, capture_image_display_attr, normalize_image_attribute_syntax
 from .sticky import use_sticky, wrap_sticky_if_needed
 
 
@@ -38,7 +39,12 @@ class _AttrHandler(Protocol):
 class SBSRenderer:
     """Turn SBS flavored Markdown into HTML pages."""
 
-    def __init__(self, *, widgets_dir: str = "./widgets", theme: str = "default"):
+    def __init__(
+        self,
+        *,
+        widgets_dir: str = "./widgets",
+        theme: str = "default",
+    ):
         self.widgets_dir = widgets_dir.rstrip("/")
         self.theme = theme or "default"
         self.md = MarkdownIt("commonmark", {"linkify": True, "typographer": True})
@@ -46,11 +52,13 @@ class SBSRenderer:
         use_sticky(self.md)
         self._renderer: _FenceRenderer = cast(_FenceRenderer, self.md.renderer)
         self._default_fence = self._renderer.rules.get("fence")
+        self._default_image = self._renderer.rules.get("image")
         self._fence_handlers: dict[str, Callable[[Token, dict[str, Any]], str]] = {}
         self._attr_handlers: dict[str, _AttrHandler] = {}
         self._register_fence_handlers()
         self._register_attr_handlers()
         self._renderer.rules["fence"] = self._render_fence
+        self._renderer.rules["image"] = self._render_image
 
     def _register_fence_handlers(self) -> None:
         self._fence_handlers = {}
@@ -73,6 +81,11 @@ class SBSRenderer:
 
         self._attr_handlers = {}
 
+        self._register_attr("align", self._handle_image_display_attr)
+        self._register_attr("scale", self._handle_image_display_attr)
+        self._register_attr("width", self._handle_image_display_attr)
+        self._register_attr("height", self._handle_image_display_attr)
+
     def _register_attr(self, name: str, handler: _AttrHandler) -> None:
         """Register a single attribute handler.
 
@@ -92,11 +105,29 @@ class SBSRenderer:
         if not self._attr_handlers:
             return
 
-        for name, value in token.attrs or []:
+        if not token.attrs:
+            return
+
+        if isinstance(token.attrs, dict):
+            items = token.attrs.items()
+        else:
+            items = token.attrs
+
+        for name, value in items:
             handler = self._attr_handlers.get(name)
             if handler is None:
                 continue
-            handler(token=token, env=env, name=name, value=value)
+            handler(token=token, env=env, name=name, value=str(value) if value is not None else None)
+
+    def _handle_image_display_attr(
+        self,
+        *,
+        token: Token,
+        env: dict[str, Any],
+        name: str,
+        value: str | None,
+    ) -> None:
+        capture_image_display_attr(token=token, env=env, name=name, value=value)
 
     def _register_fence(
         self,
@@ -119,9 +150,8 @@ class SBSRenderer:
         """Render Markdown to an HTML fragment."""
         if env is None:
             env = {}
-        elif not isinstance(env, dict):
-            raise TypeError("env must be a dict")
-        return self.md.render(text, env)
+        normalized = normalize_image_attribute_syntax(text)
+        return self.md.render(normalized, env)
 
     def render_document(self, text: str, *, title: str = "SBS Document") -> str:
         env: dict[str, Any] = {}
@@ -137,6 +167,9 @@ class SBSRenderer:
         script_srcs: list[str] = []
         if used_widgets:
             script_srcs.append(f"{self.widgets_dir}/index.js")
+
+        if env.get("_sbs_used_image_scale"):
+            script_srcs.append(f"{self.widgets_dir}/image-attrs.js")
 
         script_tags = "\n".join(
             f"<script type='module' src='{src}'></script>" for src in script_srcs
@@ -183,7 +216,15 @@ class SBSRenderer:
 
         return self._renderer.render_token(tokens, idx, options, env)
 
+    def _render_image(self, tokens, idx, options, env):
+        token = tokens[idx]
+        self._apply_registered_attrs(token, env)
+        apply_image_display_attrs(token)
+
+        if self._default_image:
+            return self._default_image(tokens, idx, options, env)
+
+        return self._renderer.render_token(tokens, idx, options, env)
+
     def _note_widget_used(self, env: dict[str, Any], widget: str) -> None:
         env.setdefault("_sbs_used_widgets", set()).add(widget)
-
-    # Sticky wrapping is handled by sticky.wrap_sticky_if_needed.
