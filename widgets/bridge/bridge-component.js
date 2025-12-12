@@ -248,6 +248,10 @@ template.innerHTML = `
     border-bottom: 1px solid var(--bridge-border-color);
 }
 
+.bidding-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
 .lead-block {
     display: inline-flex;
     align-items: baseline;
