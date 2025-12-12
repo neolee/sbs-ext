@@ -36,24 +36,32 @@ class SBSRenderer:
     # ------------------------------------------------------------------
     # Rendering
     # ------------------------------------------------------------------
-    def render(self, text: str, env: Optional[dict] = None) -> str:
+    def render(self, text: str, env: Optional[dict[str, Any]] = None) -> str:
         """Render Markdown to an HTML fragment."""
-        return self.md.render(text, env or {})
+        if env is None:
+            env = {}
+        elif not isinstance(env, dict):
+            raise TypeError("env must be a dict")
+        return self.md.render(text, env)
 
     def render_document(self, text: str, *, title: str = "SBS Document") -> str:
-        body = self.render(text)
+        env: dict[str, Any] = {}
+        body = self.render(text, env)
         title_html = html.escape(title)
         css_hrefs = [
             f"{self.widgets_dir}/sbs-ext.css",
-            f"{self.widgets_dir}/sticky.css",
             f"{self.widgets_dir}/themes/{self.theme}.css",
         ]
         css_links = "\n".join(f"<link rel='stylesheet' href='{href}'>" for href in css_hrefs)
 
-        script_srcs = [
-            f"{self.widgets_dir}/bridge/index.js",
-            f"{self.widgets_dir}/chess/index.js",
-        ]
+        used_widgets = env.get("_sbs_used_widgets")
+        script_srcs: list[str] = []
+        if used_widgets:
+            if "bridge" in used_widgets:
+                script_srcs.append(f"{self.widgets_dir}/bridge/index.js")
+            if "chess" in used_widgets:
+                script_srcs.append(f"{self.widgets_dir}/chess/index.js")
+
         script_tags = "\n".join(
             f"<script type='module' src='{src}'></script>" for src in script_srcs
         )
@@ -88,11 +96,13 @@ class SBSRenderer:
         info = (token.info or "").strip().split(None, 1)
         fence_lang = info[0] if info else ""
         if fence_lang == "sbs-bridge":
+            env.setdefault("_sbs_used_widgets", set()).add("bridge")
             block = BridgeBlock.from_fence(token.content)
             html_block = block.to_html()
             return self._wrap_sticky_if_needed(html_block, env)
 
         if fence_lang == "sbs-chess":
+            env.setdefault("_sbs_used_widgets", set()).add("chess")
             block = ChessBlock.from_fence(token.content)
             html_block = block.to_html()
             return self._wrap_sticky_if_needed(html_block, env)
@@ -103,7 +113,7 @@ class SBSRenderer:
         return self._renderer.render_token(tokens, idx, options, env)
 
     def _wrap_sticky_if_needed(self, html_block: str, env) -> str:
-        sticky_stack = env.get("_sbs_sticky_stack") if isinstance(env, dict) else None
+        sticky_stack = env.get("_sbs_sticky_stack")
         if sticky_stack:
             state = sticky_stack[-1]
             if not state.get("visual_done"):

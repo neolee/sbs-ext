@@ -45,11 +45,22 @@ class TestSBSRenderer(unittest.TestCase):
         text = load_markdown("bridge-demo.md")
         doc = self.renderer.render_document(text, title="Bridge Catalog")
         self.assertIn("/widgets/sbs-ext.css", doc)
-        self.assertIn("/widgets/sticky.css", doc)
         self.assertIn("/widgets/themes/default.css", doc)
         self.assertIn("/widgets/bridge/index.js", doc)
-        self.assertIn("/widgets/chess/index.js", doc)
+        self.assertNotIn("/widgets/chess/index.js", doc)
         self.assertIn("Bridge Catalog", doc)
+
+    def test_document_includes_only_chess_script_when_needed(self) -> None:
+        text = load_markdown("chess-demo.md")
+        doc = self.renderer.render_document(text, title="Chess Catalog")
+        self.assertIn("/widgets/chess/index.js", doc)
+        self.assertNotIn("/widgets/bridge/index.js", doc)
+
+    def test_document_includes_no_widget_scripts_when_unused(self) -> None:
+        text = load_markdown("plain.md")
+        doc = self.renderer.render_document(text, title="Plain")
+        self.assertNotIn("/widgets/bridge/index.js", doc)
+        self.assertNotIn("/widgets/chess/index.js", doc)
 
     def test_chess_demo_renders_chess_elements(self) -> None:
         text = load_markdown("chess-demo.md")
