@@ -57,10 +57,7 @@ class SBSRenderer:
         used_widgets = env.get("_sbs_used_widgets")
         script_srcs: list[str] = []
         if used_widgets:
-            if "bridge" in used_widgets:
-                script_srcs.append(f"{self.widgets_dir}/bridge/index.js")
-            if "chess" in used_widgets:
-                script_srcs.append(f"{self.widgets_dir}/chess/index.js")
+            script_srcs.append(f"{self.widgets_dir}/index.js")
 
         script_tags = "\n".join(
             f"<script type='module' src='{src}'></script>" for src in script_srcs

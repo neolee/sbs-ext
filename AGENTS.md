@@ -106,3 +106,7 @@ This document serves as a persistent context file for AI agents working on the `
 ### 2025-12-12 Update (Themes in Shadow DOM)
 - Bridge + Chess web components now map `font-family` and core text/muted colors to the global `--sbs-*` theme variables so theme choices apply inside Shadow DOM.
 - Reduced hardcoded widget styling by deriving borders/shadows/background tints from theme-driven colors (keeping game-specific palettes like chessboard squares intact).
+
+### 2025-12-12 Update (Widgets Entry Script)
++- Added a single `widgets/index.js` entry module that dynamically imports the bridge/chess widget bundles based on which custom elements are present on the page.
++- Updated the Python renderer to inject only this entry script when any SBS widget is used, keeping documents without widgets free of extra JS.
