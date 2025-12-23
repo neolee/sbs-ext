@@ -57,7 +57,7 @@ This document serves as a persistent context file for AI agents working on the `
   - **Layout**: Sticky positioning for the first child element.
 
 ## 4. Project Status
-- **Date**: December 4, 2025
+- **Date**: December 23, 2025
 - **Phase**: **Implementation**
 - **Current State**:
   - Repository initialized; `README.md` and `sbs-1.1.md` upgraded to **SBS 1.1**.
@@ -67,10 +67,16 @@ This document serves as a persistent context file for AI agents working on the `
   - Sample rendering script (`render_samples.sh`) regenerates default/classic outputs in `dist/` and documents CLI usage.
   - Chess prototype now enforces FEN+PGN truth, PGN-powered demos, and shared layout presets across widget variants.
   - Legacy timeline helpers removed from `prototype/chess/chess-renderer.js`, keeping the prototype renderer aligned with the upcoming widgets bundle.
+  - Go prototype initialized with SGF support, 19/13/9 sizes, and Book/Classic themes.
+  - Fixed Go prototype move indexing (skipping root node) and added bilingual (EN/ZH) support.
+  - Added more Go prototype examples including handicap setup, custom markers (LB, TR, SQ, CR), and flexible move numbering (all vs. last N).
+  - Optimized Go widget layout to be more compact and responsive to board size.
+  - Improved marker visibility on empty intersections with background halos and added an extra-large (1000px) demo.
+  - Refactored sizing logic to use a dynamic `width` parameter instead of hardcoded CSS classes.
 - **Immediate Next Steps**:
-  - Promote the chess widget into the shared `widgets/` bundle + renderer plugin using the finalized FEN/PGN contract.
-  - Provide guidance + tooling for author-defined themes/typography overrides.
+  - Promote the Go widget into the shared `widgets/` bundle + renderer plugin.
   - Expand automated tests/fixtures covering widgets (especially chess/go), themes, and CLI variants.
+  - Provide guidance + tooling for author-defined themes/typography overrides.
 
 ## 5. Technical Context
 - **Dependencies**: `markdown-it-py` (Python), Standard Web APIs (JS).
@@ -132,3 +138,13 @@ This document serves as a persistent context file for AI agents working on the `
 - Renderer now normalizes comma-separated attribute syntax (per spec examples) into the underlying parser format and applies the attributes as computed inline styles on `<img>`.
 - Image `scale` now uses a browser runtime helper (`widgets/image-attrs.js`) so scaling is strictly relative to `naturalWidth/naturalHeight` for both local and remote images.
 - Renderer emits `data-sbs-scale` on `<img>` when `{ scale=... }` is present and injects `widgets/image-attrs.js` only when needed.
+
+### 2025-12-23 Update (Go Widget Prototype)
+- Initialized Go (Weiqi) prototype with SGF support, 19/13/9 sizes, and Book/Classic themes.
+- Fixed move indexing logic to correctly skip root metadata nodes and start from the first actual move.
+- Added bilingual (EN/ZH) support for controls and status display.
+- Implemented support for SGF setup stones (AB, AW) and markers (LB, TR, SQ, CR).
+- Added comprehensive demo examples in the prototype including handicap games, annotated boards, and various move numbering styles (all moves vs. last N moves).
+- Optimized Go widget layout to be more compact and responsive to board size.
+- Improved marker visibility on empty intersections with background halos and added an extra-large (1000px) demo.
+- Refactored sizing logic to use a dynamic `width` parameter instead of hardcoded CSS classes.

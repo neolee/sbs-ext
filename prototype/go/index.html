@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBS Go Widget Prototype</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: #f5f5f5;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .description {
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>SBS Go (Weiqi) Widget Prototype</h1>
+    <p>This prototype demonstrates the Go widget with different themes, sizes, and interactive modes.</p>
+
+    <div class="demo-grid">
+        <!-- Demo 1: Book Theme, 19x19, Interactive -->
+        <section>
+            <h2>Book Theme (19x19)</h2>
+            <p class="description">Pure black and white style, suitable for digital books and printing.</p>
+            <div id="go-demo-1" class="go-widget-container">
+                <div class="board-container"></div>
+                <div class="go-controls"></div>
+            </div>
+        </section>
+
+        <!-- Demo 2: Classic Theme, 19x19, Interactive -->
+        <section>
+            <h2>Classic Theme (19x19)</h2>
+            <p class="description">Traditional wood board style with shadows.</p>
+            <div id="go-demo-2" class="go-widget-container">
+                <div class="board-container"></div>
+                <div class="go-controls"></div>
+            </div>
+        </section>
+
+        <!-- Demo 3: 9x9 Static, Setup & Markers -->
+        <section>
+            <h2>9x9 Static (Setup & Markers)</h2>
+            <p class="description">Compact 9x9 board with various markers (Triangle, Square, Circle, Labels) on stones and empty spots.</p>
+            <div id="go-demo-3" class="go-widget-container">
+                <div class="board-container"></div>
+            </div>
+        </section>
+
+        <!-- Demo 4: 13x13 Interactive, All Move Numbers -->
+        <section>
+            <h2>13x13 Interactive (All Numbers)</h2>
+            <p class="description">Medium size 13x13 board showing all move numbers.</p>
+            <div id="go-demo-4" class="go-widget-container">
+                <div class="board-container"></div>
+                <div class="go-controls"></div>
+            </div>
+        </section>
+
+        <!-- Demo 5: 19x19 Interactive, Last 10 Numbers -->
+        <section>
+            <h2>19x19 Interactive (Last 10 Numbers)</h2>
+            <p class="description">Large 19x19 board showing move numbers only for the last 10 moves.</p>
+            <div id="go-demo-5" class="go-widget-container">
+                <div class="board-container"></div>
+                <div class="go-controls"></div>
+            </div>
+        </section>
+
+        <!-- Demo 6: 19x19 Static, Book Theme, No Coords -->
+        <section>
+            <h2>19x19 Static (No Coordinates)</h2>
+            <p class="description">Static display without coordinates, clean book style.</p>
+            <div id="go-demo-6" class="go-widget-container">
+                <div class="board-container"></div>
+            </div>
+        </section>
+
+        <!-- Demo 7: 19x19 Interactive, Extra Large -->
+        <section style="grid-column: 1 / -1;">
+            <h2>19x19 Extra Large (1000px)</h2>
+            <p class="description">Testing the rendering quality and layout at a much larger scale.</p>
+            <div id="go-demo-7" class="go-widget-container">
+                <div class="board-container"></div>
+                <div class="go-controls"></div>
+            </div>
+        </section>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
