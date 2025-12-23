@@ -1,0 +1,64 @@
+```sbs-go
+theme: book
+size: 19
+width: 360
+---
+(;SZ[19]PB[Black]PW[White];B[pd];W[dp];B[pp];W[dd])
+```
+
+The four-star opening (Sanrensei variant) shown here is a classic formation that emphasizes influence and speed. 
+
+### The First Move: Q16
+Black starts at the top-right star point. This is the most common first move in modern Go, as it stakes a claim in the corner while remaining flexible for both territory and influence.
+
+### The Second Move: D4
+White responds at the bottom-left star point. By choosing the opposite corner, White ensures a balanced game and prevents Black from taking two adjacent corners immediately.
+
+### The Third Move: Q4
+Black takes the bottom-right star point. Now Black has two corners on the right side, creating a "framework" (moyo) that invites White to either approach or allow Black to expand further.
+
+### The Fourth Move: D16
+White takes the final open corner at the top-left. The board is now symmetrical in terms of corner occupancy.
+
+### Strategic Considerations
+In this position, both players have established their presence in two corners. The next phase of the game will involve approaching the opponent's corners or extending along the sides.
+
+Black's right-side formation is particularly strong for building a large-scale moyo. White will likely look for opportunities to break into this area or build a competing framework on the left side.
+
+The beauty of the star-point opening is its simplicity and the vast number of variations that can arise from such a balanced start.
+
+(Adding more text to ensure scrolling...)
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed pretium diam eros tempus enim.
+:::
+
+## Second Analysis: A Different Approach
+
+::: sbs-sticky
+
+```sbs-go
+theme: book
+size: 19
+width: 360
+---
+(;SZ[19]PB[Black]PW[White];B[pd];W[dd];B[pq];W[dp])
+```
+
+### Diagonal Opening
+In this variation, Black and White take corners diagonally. This often leads to a more fighting-oriented game as the spheres of influence clash more directly in the center.
+
+### Move 3: Q3
+Black chooses the bottom-right corner, but this time at a 3-4 point (Komoku). This is more territory-oriented than the star point.
+
+### Move 4: D4
+White takes the final corner, also at a star point.
+
+### Comparison
+Compared to the first example, this layout is less about large frameworks and more about solid corner territory and direct confrontation.
+
+(Adding more text...)
+
+Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus.
+:::
