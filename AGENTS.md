@@ -139,3 +139,7 @@ This document serves as a persistent context file for AI agents working on the `
 - Integrated Go widget into `sbs_renderer` with support for `sbs-go` fenced blocks.
 - Updated `widgets/index.js` for dynamic loading of the Go module.
 - Verified rendering with `go-demo.md` and `go-sticky-layout.md`.
+
+### 2025-12-23 Update (Go Widget Tests)
+- Expanded `tests/test_renderer.py` with comprehensive unit tests for the Go widget.
+- Verified rendering of `<sbs-go>` elements, sticky layout wrapping, and attribute serialization (including `move` alias, `initialMove`, `showMoveNumbers` ranges, and `showCoords` toggles).

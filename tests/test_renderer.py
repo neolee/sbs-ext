@@ -78,6 +78,62 @@ class TestSBSRenderer(unittest.TestCase):
         self.assertIn("<sbs-chess", html)
         self.assertIn("board-only", html)
 
+    def test_go_demo_renders_go_elements(self) -> None:
+        text = load_markdown("go-demo.md")
+        html = self.renderer.render(text)
+        widgets = re.findall(r"<sbs-go", html)
+        self.assertGreaterEqual(len(widgets), 7)
+
+    def test_go_sticky_layout_wraps_content(self) -> None:
+        text = load_markdown("go-sticky-layout.md")
+        html = self.renderer.render(text)
+        self.assertIn("sbs-sticky-container", html)
+        self.assertIn("<sbs-go", html)
+
+    def test_go_move_range_serialization(self) -> None:
+        text = """
+```sbs-go
+showMoveNumbers: 51-100
+---
+(;SGF)
+```
+"""
+        html = self.renderer.render(text)
+        self.assertIn('show-move-numbers="51-100"', html)
+
+    def test_go_initial_move_alias(self) -> None:
+        text = """
+```sbs-go
+move: 50
+---
+(;SGF)
+```
+"""
+        html = self.renderer.render(text)
+        self.assertIn('initial-move="50"', html)
+
+    def test_go_initial_move_serialization(self) -> None:
+        text = """
+```sbs-go
+initialMove: 75
+---
+(;SGF)
+```
+"""
+        html = self.renderer.render(text)
+        self.assertIn('initial-move="75"', html)
+
+    def test_go_coords_false_serialization(self) -> None:
+        text = """
+```sbs-go
+showCoords: false
+---
+(;SGF)
+```
+"""
+        html = self.renderer.render(text)
+        self.assertIn('coords="false"', html)
+
     def test_image_attributes_apply_width_and_alignment(self) -> None:
         text = "![beautiful pic](https://images.com/pic.jpg){ align=center, width=300 }"
         html = self.renderer.render(text)
