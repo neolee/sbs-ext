@@ -23,9 +23,11 @@ _BOOL_ATTRS = {
 }
 _NUM_ATTRS = {
     "size": "size",
-    "showMoveNumbers": "show-move-numbers",
     "initialMove": "initial-move",
     "move": "initial-move",
+}
+_OTHER_ATTRS = {
+    "showMoveNumbers": "show-move-numbers",
 }
 
 
@@ -83,6 +85,9 @@ class GoBlock:
             add_attr(attr, config.get(key))
 
         for key, attr in _NUM_ATTRS.items():
+            add_attr(attr, config.get(key))
+
+        for key, attr in _OTHER_ATTRS.items():
             add_attr(attr, config.get(key))
 
         attr_str = " ".join(

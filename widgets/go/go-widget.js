@@ -160,12 +160,21 @@ export class GoController {
         
         // Add move numbers if enabled
         if (this.showMoveNumbers) {
-            const start = typeof this.showMoveNumbers === 'number' 
-                ? Math.max(0, this.currentMoveIndex - this.showMoveNumbers + 1)
-                : 0;
+            let start = 0;
+            let end = this.currentMoveIndex;
+
+            if (typeof this.showMoveNumbers === 'number') {
+                start = Math.max(0, this.currentMoveIndex - this.showMoveNumbers + 1);
+            } else if (typeof this.showMoveNumbers === 'object') {
+                start = (this.showMoveNumbers.start || 1) - 1;
+                if (this.showMoveNumbers.end !== Infinity) {
+                    end = Math.min(this.currentMoveIndex, this.showMoveNumbers.end - 1);
+                }
+            }
             
-            for (let i = start; i <= this.currentMoveIndex; i++) {
+            for (let i = start; i <= end; i++) {
                 const node = this.moves[i];
+                if (!node) continue;
                 const coordStr = node.B || node.W;
                 if (coordStr) {
                     const coord = sgfToCoord(coordStr);

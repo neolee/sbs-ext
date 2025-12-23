@@ -5,6 +5,7 @@ const styles = `
 :host {
     --go-bg: var(--sbs-page-bg, #fdfdfd);
     --go-border: var(--sbs-muted-color, #eee);
+    --go-font-board: "Inter", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --panel-bg: var(--sbs-page-bg, #fdfdfd);
     --panel-muted: var(--sbs-muted-color, #708090);
     --panel-heading: var(--sbs-text-color, currentColor);
@@ -18,6 +19,7 @@ const styles = `
 }
 
 .go-widget-container {
+
     display: inline-flex;
     flex-direction: column;
     align-items: center;
@@ -32,6 +34,10 @@ const styles = `
 .board-container {
     width: 100%;
     max-width: 100%;
+}
+
+.sbs-go-board text {
+    font-family: var(--go-font-board);
 }
 
 .go-controls {
@@ -235,6 +241,15 @@ export class SBSGoDiagram extends HTMLElement {
         if (attr === null || attr === undefined) return false;
         if (attr === 'true' || attr === '') return true;
         if (attr === 'false') return false;
+
+        // Handle range like "51-100"
+        if (typeof attr === 'string' && attr.includes('-')) {
+            const [start, end] = attr.split('-').map(s => parseInt(s.trim()));
+            if (!isNaN(start)) {
+                return { start, end: isNaN(end) ? Infinity : end };
+            }
+        }
+
         const num = parseInt(attr);
         return isNaN(num) ? false : num;
     }
