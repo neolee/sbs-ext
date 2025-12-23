@@ -38,4 +38,18 @@ uv run python -m sbs_renderer \
 	--widgets-dir "../widgets" \
 	--theme "default"
 
+uv run python -m sbs_renderer \
+	../tests/markdown/go-demo.md \
+	../dist/go-demo.html \
+	--title "Go Catalog" \
+	--widgets-dir "../widgets" \
+	--theme "default"
+
+uv run python -m sbs_renderer \
+	../tests/markdown/go-sticky-layout.md \
+	../dist/go-sticky-layout.html \
+	--title "Go Sticky" \
+	--widgets-dir "../widgets" \
+	--theme "classic"
+
 cd ..

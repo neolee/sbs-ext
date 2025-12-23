@@ -1,6 +1,7 @@
 const WIDGET_MODULES = [
     { selector: 'sbs-bridge', module: './bridge/index.js' },
     { selector: 'sbs-chess', module: './chess/index.js' },
+    { selector: 'sbs-go', module: './go/index.js' },
 ];
 
 const loaded = new Set();

@@ -11,6 +11,7 @@ from markdown_it.token import Token
 from mdit_py_plugins.attrs import attrs_plugin
 from .bridge import BridgeBlock
 from .chess import ChessBlock
+from .go import GoBlock
 from .image_attrs import apply_image_display_attrs, capture_image_display_attr, normalize_image_attribute_syntax
 from .sticky import use_sticky, wrap_sticky_if_needed
 
@@ -64,6 +65,7 @@ class SBSRenderer:
         self._fence_handlers = {}
         self._register_fence("sbs-bridge", widget="bridge", block_factory=BridgeBlock.from_fence)
         self._register_fence("sbs-chess", widget="chess", block_factory=ChessBlock.from_fence)
+        self._register_fence("sbs-go", widget="go", block_factory=GoBlock.from_fence)
 
     def _register_attr_handlers(self) -> None:
         """Register attribute handlers.

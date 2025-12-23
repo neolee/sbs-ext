@@ -1,3 +1,4 @@
+::: sbs-sticky
 ```sbs-go
 theme: book
 size: 19
@@ -37,7 +38,6 @@ Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, tur
 ## Second Analysis: A Different Approach
 
 ::: sbs-sticky
-
 ```sbs-go
 theme: book
 size: 19

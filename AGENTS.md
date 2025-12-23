@@ -62,19 +62,14 @@ This document serves as a persistent context file for AI agents working on the `
 - **Current State**:
   - Repository initialized; `README.md` and `sbs-1.1.md` upgraded to **SBS 1.1**.
   - Bridge web component packaged under `widgets/bridge/` with sticky layout hooks and inline PBN parser, matching prototype behavior.
-  - Python renderer (`sbs_renderer`) renders SBS Markdown via `markdown-it-py`, supports `sbs-bridge` + `sbs-sticky`, and exposes a tested CLI entry point.
+  - Python renderer (`sbs_renderer`) renders SBS Markdown via `markdown-it-py`, supports `sbs-bridge`, `sbs-chess`, `sbs-go`, and `sbs-sticky`.
   - Theme system shipped (`widgets/sbs-ext.css` plus `widgets/themes/{default,classic}.css`) with CLI `--theme` flag; layout CSS removed from Python bundle.
-  - Sample rendering script (`render_samples.sh`) regenerates default/classic outputs in `dist/` and documents CLI usage.
+  - Sample rendering script (`render_samples.sh`) regenerates default/classic outputs in `dist/` for all widgets.
   - Chess prototype now enforces FEN+PGN truth, PGN-powered demos, and shared layout presets across widget variants.
-  - Legacy timeline helpers removed from `prototype/chess/chess-renderer.js`, keeping the prototype renderer aligned with the upcoming widgets bundle.
-  - Go prototype initialized with SGF support, 19/13/9 sizes, and Book/Classic themes.
-  - Fixed Go prototype move indexing (skipping root node) and added bilingual (EN/ZH) support.
-  - Added more Go prototype examples including handicap setup, custom markers (LB, TR, SQ, CR), and flexible move numbering (all vs. last N).
-  - Optimized Go widget layout to be more compact and responsive to board size.
-  - Improved marker visibility on empty intersections with background halos and added an extra-large (1000px) demo.
-  - Refactored sizing logic to use a dynamic `width` parameter instead of hardcoded CSS classes.
+  - Go widget promoted to `widgets/go/` with `<sbs-go>` custom element and full SGF support.
+  - Renderer supports `sbs-go` fenced blocks with YAML configuration and SGF payloads.
+  - Sticky layout verified with Bridge, Chess, and Go widgets.
 - **Immediate Next Steps**:
-  - Promote the Go widget into the shared `widgets/` bundle + renderer plugin.
   - Expand automated tests/fixtures covering widgets (especially chess/go), themes, and CLI variants.
   - Provide guidance + tooling for author-defined themes/typography overrides.
 
@@ -139,12 +134,8 @@ This document serves as a persistent context file for AI agents working on the `
 - Image `scale` now uses a browser runtime helper (`widgets/image-attrs.js`) so scaling is strictly relative to `naturalWidth/naturalHeight` for both local and remote images.
 - Renderer emits `data-sbs-scale` on `<img>` when `{ scale=... }` is present and injects `widgets/image-attrs.js` only when needed.
 
-### 2025-12-23 Update (Go Widget Prototype)
-- Initialized Go (Weiqi) prototype with SGF support, 19/13/9 sizes, and Book/Classic themes.
-- Fixed move indexing logic to correctly skip root metadata nodes and start from the first actual move.
-- Added bilingual (EN/ZH) support for controls and status display.
-- Implemented support for SGF setup stones (AB, AW) and markers (LB, TR, SQ, CR).
-- Added comprehensive demo examples in the prototype including handicap games, annotated boards, and various move numbering styles (all moves vs. last N moves).
-- Optimized Go widget layout to be more compact and responsive to board size.
-- Improved marker visibility on empty intersections with background halos and added an extra-large (1000px) demo.
-- Refactored sizing logic to use a dynamic `width` parameter instead of hardcoded CSS classes.
+### 2025-12-23 Update (Go Widget Integration)
+- Promoted Go prototype to `widgets/go/` with `<sbs-go>` custom element.
+- Integrated Go widget into `sbs_renderer` with support for `sbs-go` fenced blocks.
+- Updated `widgets/index.js` for dynamic loading of the Go module.
+- Verified rendering with `go-demo.md` and `go-sticky-layout.md`.
