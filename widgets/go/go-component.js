@@ -209,12 +209,14 @@ export class SBSGoDiagram extends HTMLElement {
 
         this.render();
         const container = this.shadowRoot.querySelector('.go-widget-container');
+        const initialMoveAttr = this.getAttribute('initial-move') || this.getAttribute('move');
         const options = {
             size: parseInt(this.getAttribute('size')) || 19,
             theme: this.getAttribute('theme') || 'book',
             interactive: this.hasAttribute('interactive'),
             showCoords: this.getAttribute('coords') !== 'false',
             showMoveNumbers: this.parseMoveNumbers(this.getAttribute('show-move-numbers')),
+            initialMove: initialMoveAttr !== null ? parseInt(initialMoveAttr) : -1,
             lang: this.getAttribute('lang') || (document.documentElement.lang === 'zh' ? 'zh' : 'en'),
             width: this.getAttribute('width') || null
         };

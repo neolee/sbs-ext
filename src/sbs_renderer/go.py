@@ -24,6 +24,8 @@ _BOOL_ATTRS = {
 _NUM_ATTRS = {
     "size": "size",
     "showMoveNumbers": "show-move-numbers",
+    "initialMove": "initial-move",
+    "move": "initial-move",
 }
 
 

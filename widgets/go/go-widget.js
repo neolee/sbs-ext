@@ -41,6 +41,7 @@ export class GoController {
         this.rootNode = null;
         this.moves = [];
         this.currentMoveIndex = -1; // -1 means initial state (after root node setup)
+        this.initialMove = options.initialMove !== undefined ? options.initialMove : -1;
         this.interactive = options.interactive || false;
         this.showMoveNumbers = options.showMoveNumbers || false; // false, true, or number
 
@@ -82,8 +83,12 @@ export class GoController {
         // Handle setup stones in root node (AB, AW)
         this.applySetup(this.rootNode);
 
-        this.currentMoveIndex = -1;
-        this.update();
+        if (this.initialMove >= 0) {
+            this.goToMove(this.initialMove - 1); // SGF moves are 0-indexed in this.moves
+        } else {
+            this.currentMoveIndex = -1;
+            this.update();
+        }
     }
 
     applySetup(node) {
