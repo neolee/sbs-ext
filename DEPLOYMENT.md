@@ -6,7 +6,7 @@ This document provides a step-by-step guide for deploying the SBS Editor on an A
 
 - **Arch Linux** updated (`pacman -Syu`).
 - **uv** installed (`pacman -S python-uv`).
-- **Nginx** installed (`pacman -S nginx`).
+- **nginx** installed (`pacman -S nginx`).
 - **Python 3.11+**.
 
 ## 2. Environment Setup
@@ -26,7 +26,7 @@ uv sync
 
 ## 3. Systemd Service Configuration
 
-Create a systemd unit file to manage the FastAPI process. This ensures the editor starts on boot and restarts if it crashes.
+Create a `systemd` unit file to manage the FastAPI process. This ensures the editor starts on boot and restarts if it crashes.
 
 Create the file `/etc/systemd/system/sbs-editor.service`:
 

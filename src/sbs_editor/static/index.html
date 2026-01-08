@@ -23,11 +23,18 @@
             background: #ffffff;
             border-bottom: 1px solid #dcdfe6;
             display: flex;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+        .toolbar-left, .toolbar-right {
+            display: flex;
             align-items: center;
             padding: 0 20px;
             gap: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            z-index: 10;
+            flex: 1;
+        }
+        .toolbar-left {
+            border-right: 1px solid #dcdfe6;
         }
         .toolbar h1 {
             margin: 0;
@@ -88,6 +95,11 @@
             border: 1px solid #dcdfe6;
             outline: none;
         }
+        .toolbar-label {
+            font-size: 14px;
+            color: #606266;
+            margin-right: -5px;
+        }
         .spacer {
             flex: 1;
         }
@@ -96,23 +108,31 @@
 <body>
     <div class="container">
         <div class="toolbar">
-            <h1>SBS Editor</h1>
-            <select id="theme-select">
-                <option value="default">Default Theme</option>
-                <option value="classic">Classic Theme</option>
-            </select>
-            <div class="dropdown">
+            <div class="toolbar-left">
+                <h1>SBS Editor</h1>
+
+                <span class="toolbar-label">Insert</span>
                 <select id="widget-insert">
-                    <option value="">Insert Widget...</option>
+                    <option value="">Widget</option>
                     <option value="chess">Chess Board</option>
                     <option value="bridge">Bridge Deal</option>
                     <option value="go">Go Board</option>
                     <option value="sticky">Sticky Layout</option>
                 </select>
+
+                <span class="toolbar-label">Theme</span>
+                <select id="theme-select">
+                    <option value="default">Default</option>
+                    <option value="classic">Classic</option>
+                </select>
+
+                <div class="spacer"></div>
+                <button class="btn btn-secondary" id="export-btn">Download</button>
             </div>
-            <div class="spacer"></div>
-            <button class="btn btn-secondary" id="export-btn">Export MD</button>
-            <button class="btn" id="render-btn">Render</button>
+            <div class="toolbar-right">
+                <div class="spacer"></div>
+                <button class="btn" id="render-btn">Render</button>
+            </div>
         </div>
         <div class="main">
             <div id="editor-container"></div>
@@ -146,11 +166,12 @@ Welcome to the **Smart Book Standard** editor.
 ::: sbs-sticky
 \`\`\`sbs-chess
 title: "Sticky Chess Demo"
-fen: "r1bq1rk1/pp1n1pbp/3p1np1/2pPp3/2P1P3/2N2N2/PPQBBPPP/R3K2R w KQ - 0 11"
 layout: "compact"
-size: 360
+coords: true
 orientation: "black"
 interactive: true
+---
+r1bq1rk1/pp1n1pbp/3p1np1/2pPp3/2P1P3/2N2N2/PPQBBPPP/R3K2R w KQ - 0 11
 \`\`\`
 This is a sticky chess board. You can scroll the text on the right while the board stays visible.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.
@@ -159,13 +180,14 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendi
 ## Bridge Example
 
 \`\`\`sbs-bridge
-lang: zh
-data: |
-  [Main "Scenario 1"]
-  [Deal "N:AKQJ.AKQJ.AK.AQJ 9876.9876.8.K982 5432.5432.54.754 T.T.QJT97632.T63"]
-  [Declarer "N"]
-  [Contract "6H"]
-  [Result "13"]
+title: "Bridge Demo"
+layout: "full"
+---
+[Main "Scenario 1"]
+[Deal "N:AKQJ.AKQJ.AK.AQJ 9876.9876.8.K982 5432.5432.54.754 T.T.QJT97632.T63"]
+[Declarer "N"]
+[Contract "6H"]
+[Result "13"]
 \`\`\`
 
 ## Go Example
@@ -173,6 +195,7 @@ data: |
 \`\`\`sbs-go
 theme: book
 size: 500
+board: 19
 showMoveNumbers: 10
 interactive: true
 ---
@@ -186,7 +209,7 @@ interactive: true
         async function render() {
             const text = view.state.doc.toString();
             const theme = themeSelect.value;
-            
+
             try {
                 const response = await fetch('/api/render', {
                     method: 'POST',
@@ -194,7 +217,7 @@ interactive: true
                     body: JSON.stringify({ text, theme })
                 });
                 const data = await response.json();
-                
+
                 // Using srcdoc for direct injection, which handles origin-relative paths (/widgets/...) reliably
                 previewFrame.srcdoc = data.html;
             } catch (err) {
@@ -240,13 +263,13 @@ interactive: true
 
             let snippet = "";
             if (val === 'chess') {
-                snippet = "\n```sbs-chess\ntitle: \"Initial Position\"\nfen: \"startpos\"\nlayout: \"full\"\ninteractive: true\n```\n";
+                snippet = "\n```sbs-chess\ntitle: \"Chess Game\"\nlayout: \"full\"\ncoords: true\ninteractive: true\n---\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7\n```\n";
             } else if (val === 'bridge') {
-                snippet = "\n```sbs-bridge\nlang: zh\ndata: |\n  [Main \"Scenario\"]\n  [Deal \"N:AKQJ.AKQJ.AK.AQJ 9876.9876.8.K982 5432.5432.54.754 T.T.QJT97632.T63\"]\n  [Declarer \"N\"]\n  [Contract \"6H\"]\n```\n";
+                snippet = "\n```sbs-bridge\ntitle: \"Bridge Hand\"\nlayout: \"full\"\n---\n[Main \"Scenario\"]\n[Deal \"N:AKQJ.AKQJ.AK.AQJ 9876.9876.8.K982 5432.5432.54.754 T.T.QJT97632.T63\"]\n[Declarer \"N\"]\n[Contract \"6H\"]\n```\n";
             } else if (val === 'go') {
-                snippet = "\n```sbs-go\ntheme: book\ninteractive: true\n---\n(;GM[1]FF[4]SZ[19]PB[Black]PW[White];B[pd];W[dp])\n```\n";
+                snippet = "\n```sbs-go\ntitle: \"Go Game\"\nsize: 400\nboard: 19\nshowMoveNumbers: 0\ninteractive: true\n---\n(;GM[1]FF[4]SZ[19]PB[Black]PW[White];B[pd];W[dp];B[pp])\n```\n";
             } else if (val === 'sticky') {
-                snippet = "\n::: sbs-sticky\n```sbs-chess\n...\n```\nNarration goes here.\n:::\n";
+                snippet = "\n::: sbs-sticky\n```sbs-chess\nlayout: \"mini\"\nsize: 300\n---\n1. e4 e5\n```\nYour narration text should be placed here. It will scroll while the widget remains sticky.\n:::\n";
             }
 
             if (snippet) {
