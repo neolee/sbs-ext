@@ -128,7 +128,7 @@ const LAYOUT_PRESETS = {
         captures: true,
         boardOnly: false
     },
-    compact: {
+    standard: {
         header: true,
         sidebar: true,
         meta: true,
@@ -139,7 +139,7 @@ const LAYOUT_PRESETS = {
         captures: true,
         boardOnly: false
     },
-    minimal: {
+    compact: {
         header: true,
         sidebar: true,
         meta: true,
@@ -150,7 +150,7 @@ const LAYOUT_PRESETS = {
         captures: false,
         boardOnly: false
     },
-    'board-only': {
+    mini: {
         header: false,
         sidebar: false,
         meta: false,
@@ -171,8 +171,7 @@ const DEFAULT_CONFIG = {
     orientation: 'white',
     size: 480,
     layout: 'full',
-    showAxes: true,
-    lockSize: false,
+    coords: true,
     lang: DEFAULT_LANG
 };
 
@@ -325,7 +324,7 @@ export class ChessWidget {
         this.root = document.createElement('div');
         this.root.className = 'sbs-chess-widget';
         if (this.layoutPreset.boardOnly) {
-            this.root.classList.add('board-only');
+            this.root.classList.add('mini');
         }
         this.root.dataset.orientation = this.config.orientation;
         this.root.style.setProperty('--board-size', this.resolveBoardSize());
@@ -352,7 +351,6 @@ export class ChessWidget {
     setBoardSize(size, { force = false } = {}) {
         const parsed = typeof size === 'number' ? size : parseInt(size, 10);
         if (Number.isNaN(parsed)) return;
-        if (this.config.lockSize && !force) return;
         this.config.size = parsed;
         this.render();
     }
@@ -386,17 +384,17 @@ export class ChessWidget {
         this.boardShell.appendChild(this.boardGrid);
 
         const fileLabels = document.createElement('div');
-        fileLabels.className = 'board-axis file-labels bottom';
+        fileLabels.className = 'board-coords file-labels bottom';
         this.fileLabels = fileLabels;
         this.boardShell.appendChild(fileLabels);
 
         const rankLabels = document.createElement('div');
-        rankLabels.className = 'board-axis rank-labels left';
+        rankLabels.className = 'board-coords rank-labels left';
         this.rankLabels = rankLabels;
         this.boardShell.appendChild(rankLabels);
 
         this.root.appendChild(this.boardShell);
-        this.updateAxes();
+        this.updateCoords();
     }
 
     renderSidebar() {
@@ -646,8 +644,8 @@ export class ChessWidget {
         return size || '480px';
     }
 
-    shouldShowAxes() {
-        return Boolean(this.config.showAxes);
+    shouldShowCoords() {
+        return Boolean(this.config.coords);
     }
 
     captureGameMetadata(rawPgn) {
@@ -730,29 +728,29 @@ export class ChessWidget {
     // Ensure the board keeps a fixed footprint even if CSS custom properties fail.
     applyBoardSizeStyles() {
         const size = this.resolveBoardSize();
-        const hasAxes = this.shouldShowAxes();
+        const hasCoords = this.shouldShowCoords();
         if (this.root) {
             this.root.style.setProperty('--board-size', size);
         }
         if (this.boardShell) {
-            this.boardShell.style.gridTemplateColumns = hasAxes ? `auto ${size}` : size;
-            this.boardShell.style.gridTemplateRows = hasAxes ? `${size} auto` : size;
-            this.boardShell.style.columnGap = hasAxes ? '0.35rem' : '0';
-            this.boardShell.style.rowGap = hasAxes ? '0.35rem' : '0';
+            this.boardShell.style.gridTemplateColumns = hasCoords ? `auto ${size}` : size;
+            this.boardShell.style.gridTemplateRows = hasCoords ? `${size} auto` : size;
+            this.boardShell.style.columnGap = hasCoords ? '0.35rem' : '0';
+            this.boardShell.style.rowGap = hasCoords ? '0.35rem' : '0';
         }
         if (this.boardGrid) {
             this.boardGrid.style.width = size;
             this.boardGrid.style.height = size;
-            this.boardGrid.style.gridColumn = hasAxes ? '2 / 3' : '1 / 2';
+            this.boardGrid.style.gridColumn = hasCoords ? '2 / 3' : '1 / 2';
             this.boardGrid.style.gridRow = '1 / 2';
         }
         if (this.fileLabels) {
             this.fileLabels.style.width = size;
-            this.fileLabels.style.gridColumn = hasAxes ? '2 / 3' : '1 / 2';
+            this.fileLabels.style.gridColumn = hasCoords ? '2 / 3' : '1 / 2';
         }
         if (this.rankLabels) {
             this.rankLabels.style.height = size;
-            this.rankLabels.style.gridColumn = hasAxes ? '1 / 2' : '1 / 2';
+            this.rankLabels.style.gridColumn = hasCoords ? '1 / 2' : '1 / 2';
             this.rankLabels.style.gridRow = '1 / 2';
         }
     }
@@ -861,11 +859,11 @@ export class ChessWidget {
         });
     }
 
-    updateAxes() {
+    updateCoords() {
         if (!this.fileLabels && !this.rankLabels) return;
         const files = buildFileLabels(this.config.orientation);
         const ranks = buildRankLabels(this.config.orientation);
-        const display = this.shouldShowAxes() ? 'flex' : 'none';
+        const display = this.shouldShowCoords() ? 'flex' : 'none';
         if (this.fileLabels) {
             this.fileLabels.style.display = display;
             this.fileLabels.innerHTML = files.map(file => `<span>${file}</span>`).join('');

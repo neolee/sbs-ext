@@ -2,8 +2,8 @@
 
 ```sbs-go
 theme: book
-size: 19
-width: 360
+board: 19
+size: 360
 initialMove: 50
 showMoveNumbers: true
 interactive: false
@@ -46,8 +46,8 @@ Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, tur
 
 ```sbs-go
 theme: book
-size: 19
-width: 360
+board: 19
+size: 360
 initialMove: 100
 showMoveNumbers: 51-100
 interactive: true

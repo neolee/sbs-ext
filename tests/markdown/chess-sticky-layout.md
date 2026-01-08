@@ -3,13 +3,13 @@
 ::: sbs-sticky
 ```sbs-chess
 title: "Move 12 · Catalan Tension"
-layout: "board-only"
+layout: "mini"
 size: 240
 fen: "r1bqk2r/pp2bppp/2n1pn2/2pp4/2P1P3/1PNP1N2/PB1B1PPP/R2QK2R w KQkq - 4 9"
 orientation: "white"
 interactive: false
 lang: "en"
-showAxes: false
+coords: false
 ```
 
 Catalan structures often hinge on whether Black can safely capture on c4 before White completes development. Here, White has already prepared b3 and Rc1, so the bishop pair is ready to punish any premature ...dxc4. The diagram stays pinned on wider screens while you compare candidate moves.
@@ -27,7 +27,7 @@ Notice how the sticky frame keeps the bishops aligned with the commentary about 
 ::: sbs-sticky
 ```sbs-chess
 title: "Move 23 · Exchange Sacrifice"
-layout: "board-only"
+layout: "mini"
 size: 240
 fen: "2rq1rk1/1b1nbppp/p3pn2/1p6/3PB3/P1N1BN2/1PP2PPP/2RQ1RK1 w - - 0 23"
 orientation: "white"
@@ -48,7 +48,7 @@ Try scanning the prose quickly: the board never jitters or scrolls away, so conc
 ::: sbs-sticky
 ```sbs-chess
 title: "Move 36 · Knight Fortress"
-layout: "board-only"
+layout: "mini"
 size: 240
 fen: "6k1/1b1n1pp1/p2Pp2p/1p1nP3/3N4/1P4P1/P4P1P/3R2K1 w - - 0 36"
 orientation: "white"

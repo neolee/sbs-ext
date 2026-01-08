@@ -36,7 +36,7 @@ export class GoController {
         this.board = new GoBoard(container.querySelector('.board-container'), {
             size: options.size || 19,
             theme: options.theme || 'book',
-            showCoords: options.showCoords !== undefined ? options.showCoords : true
+            coords: options.coords !== undefined ? options.coords : true
         });
 
         this.rootNode = null;

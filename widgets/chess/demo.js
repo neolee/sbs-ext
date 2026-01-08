@@ -10,7 +10,7 @@ const demos = [
         config: {
             title: 'Initial Position',
             fen: 'startpos',
-            layout: 'minimal'
+            layout: 'compact'
         }
     },
     {
@@ -19,7 +19,7 @@ const demos = [
             title: 'Interactive Sandbox',
             fen: 'startpos',
             interactive: true,
-            showAxes: true
+            coords: true
         }
     },
     {
@@ -46,8 +46,8 @@ const demos = [
         config: {
             title: 'Minimal Board',
             fen: 'r3k2r/pp1nbppp/2p1pn2/3p4/3P1B2/2N1PN2/PP3PPP/R2QKB1R w KQkq - 0 10',
-            layout: 'board-only',
-            showAxes: true
+            layout: 'mini',
+            coords: true
         }
     },
     {
@@ -55,8 +55,7 @@ const demos = [
         config: {
             title: 'Half-Size Widget',
             fen: 'rnbq1rk1/ppp2ppp/3bpn2/3p4/3P1B2/2N1PN2/PPP2PPP/R2QKB1R w KQ - 0 8',
-            size: 240,
-            lockSize: true
+            size: 240
         }
     },
     {

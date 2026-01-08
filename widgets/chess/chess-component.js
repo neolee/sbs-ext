@@ -45,19 +45,19 @@ const styles = `
     position: relative;
 }
 
-.sbs-chess-widget.board-only {
+.sbs-chess-widget.mini {
     grid-template-columns: 1fr;
     padding: 0.75rem;
     max-width: calc(var(--board-size) + 2.5rem);
 }
 
-.sbs-chess-widget.board-only .sidebar,
-.sbs-chess-widget.board-only header,
-.sbs-chess-widget.board-only .upcoming-note {
+.sbs-chess-widget.mini .sidebar,
+.sbs-chess-widget.mini header,
+.sbs-chess-widget.mini .upcoming-note {
     display: none !important;
 }
 
-.sbs-chess-widget.board-only .board-shell {
+.sbs-chess-widget.mini .board-shell {
     margin: 0 auto;
 }
 
@@ -125,7 +125,7 @@ const styles = `
     border: 1px solid var(--panel-heading);
 }
 
-.board-axis {
+.board-coords {
     font-size: clamp(0.55rem, calc(var(--board-size) / 24), 1.15rem);
     color: var(--panel-muted);
     letter-spacing: 0.02em;
@@ -148,7 +148,7 @@ const styles = `
     height: var(--board-size);
 }
 
-.board-axis span {
+.board-coords span {
     display: flex;
     flex: 1;
     align-items: center;
@@ -488,7 +488,7 @@ template.innerHTML = `<style>${styles}</style><div class="widget-container"></di
 
 export class SBSChessDiagram extends HTMLElement {
     static get observedAttributes() {
-        return ['title', 'fen', 'pgn', 'interactive', 'orientation', 'size', 'layout', 'show-axes', 'lock-size', 'lang'];
+        return ['title', 'fen', 'pgn', 'interactive', 'orientation', 'size', 'layout', 'coords', 'lang'];
     }
 
     constructor() {
@@ -610,14 +610,9 @@ export class SBSChessDiagram extends HTMLElement {
             config.interactive = interactive;
         }
 
-        const showAxes = this._parseBooleanAttr('show-axes');
-        if (typeof showAxes === 'boolean') {
-            config.showAxes = showAxes;
-        }
-
-        const lockSize = this._parseBooleanAttr('lock-size');
-        if (typeof lockSize === 'boolean') {
-            config.lockSize = lockSize;
+        const coords = this._parseBooleanAttr('coords');
+        if (typeof coords === 'boolean') {
+            config.coords = coords;
         }
 
         const attrPgn = this.getAttribute('pgn') || this.getAttribute('data-pgn');

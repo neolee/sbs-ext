@@ -99,7 +99,7 @@ This document serves as a persistent context file for AI agents working on the `
 - Promoted the chess prototype into `widgets/chess/` with a reusable `<sbs-chess>` custom element plus parity demo page.
 - Added chess Markdown fixtures (`chess-demo.md`, `chess-sticky-layout.md`) alongside renamed bridge counterparts to keep renderer samples aligned.
 - Extended `sbs_renderer` to emit `<sbs-chess>` fences, load the new widget bundle + sticky CSS, and refreshed `render_samples.sh` to produce bridge/chess HTML in `dist/`.
-- Chess widget now derives axis visibility from a single helper so board-only + sticky layouts stay perfectly centered regardless of host CSS.
+- Chess widget now derives coordinate visibility from a single helper so mini + sticky layouts stay perfectly centered regardless of host CSS.
 - Renderer blocks share a new `parse_fence_config` + `escape_script_payload` utility, keeping bridge/chess modules smaller and preventing future duplication.
 - Sticky chess markdown received much longer narration to showcase the anchored board experience in docs and regenerated demo HTML via `render_samples.sh`.
 

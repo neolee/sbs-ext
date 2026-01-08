@@ -11,7 +11,7 @@ export class GoBoard {
     constructor(container, options = {}) {
         this.container = container;
         this.size = options.size || 19;
-        this.showCoords = options.showCoords !== undefined ? options.showCoords : true;
+        this.coords = options.coords !== undefined ? options.coords : true;
         this.theme = options.theme || 'book'; // 'book' or 'classic'
         this.markers = options.markers || {}; // { "x,y": { type: 'last' | 'number' | 'letter', value: 'A' } }
         
@@ -40,15 +40,15 @@ export class GoBoard {
         this.render();
     }
 
-    toggleCoords(show) {
-        this.showCoords = show;
+    setCoords(show) {
+        this.coords = show;
         this.render();
     }
 
     render(board = [], markers = {}) {
         this.svg.innerHTML = '';
         const size = this.size;
-        const padding = this.showCoords ? 6 : 2;
+        const padding = this.coords ? 6 : 2;
         const cellSize = (100 - 2 * padding) / (size - 1);
 
         // Draw background
@@ -94,7 +94,7 @@ export class GoBoard {
         }
 
         // Draw coordinates
-        if (this.showCoords) {
+        if (this.coords) {
             const coordGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
             coordGroup.classList.add("coords");
             const labelPos = padding / 2;

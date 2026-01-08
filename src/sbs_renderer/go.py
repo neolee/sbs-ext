@@ -14,15 +14,14 @@ from .utils import escape_script_payload, parse_fence_config
 _ATTR_MAP = {
     "theme": "theme",
     "lang": "lang",
-    "width": "width",
+    "size": "size",
 }
 _BOOL_ATTRS = {
     "interactive": "interactive",
     "coords": "coords",
-    "showCoords": "coords",
 }
 _NUM_ATTRS = {
-    "size": "size",
+    "board": "board",
     "initialMove": "initial-move",
     "move": "initial-move",
 }

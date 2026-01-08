@@ -9,6 +9,13 @@ from typing import Any, Dict
 from .utils import escape_script_payload, parse_fence_config
 
 
+_ATTR_MAP = {
+    "layout": "layout",
+}
+
+_BOOL_ATTRS = set()
+
+
 @dataclass
 class BridgeBlock:
     """Represents a single `sbs-bridge` fenced block."""
@@ -18,29 +25,60 @@ class BridgeBlock:
     @classmethod
     def from_fence(cls, raw: str) -> "BridgeBlock":
         """Parse the fenced block body as YAML-like config."""
+        # Handle explicit config/data split via '---'
+        if "---" in raw:
+            parts = raw.split("---", 1)
+            config_part = parts[0].strip()
+            pbn_part = parts[1].strip()
+
+            import yaml
+            # Try to parse the first part as YAML
+            try:
+                config = yaml.safe_load(config_part)
+                if isinstance(config, dict):
+                    # Prioritize 'pbn' as the key
+                    config["pbn"] = pbn_part
+                    return cls(config)
+            except yaml.YAMLError:
+                pass
+
         parsed = parse_fence_config(raw)
         if parsed is not None:
             return cls(parsed)
         # Fall back to treating the entire body as a PBN payload.
-        return cls({"data": raw})
+        return cls({"pbn": raw})
 
     def to_html(self) -> str:
         """Serialize to the <sbs-bridge> custom element."""
-        # Support both 'data' and 'pbn' keys for the payload
-        pbn_payload = (self.config.get("data") or self.config.get("pbn") or "").strip()
+        # Support 'pbn' and 'data' keys for the payload, prioritizing 'pbn'
+        pbn_payload = (
+            self.config.get("pbn") or 
+            self.config.get("data") or 
+            ""
+        ).strip()
         if not pbn_payload:
             return "<sbs-bridge></sbs-bridge>"
 
         lang = (self.config.get("lang") or "zh").strip()
         data_format = (self.config.get("format") or "pbn").strip()
 
+        # Build list of attributes.
         attr_pairs = [
             ("lang", lang),
             ("data-format", data_format),
         ]
+
+        # Apply standardized mappings.
+        for key, value in self.config.items():
+            if key in _ATTR_MAP:
+                attr_name = _ATTR_MAP[key]
+                if attr_name in _BOOL_ATTRS:
+                    value = "true" if value else "false"
+                attr_pairs.append((attr_name, str(value)))
+
         # Serialize remaining custom attributes as data-* for future use.
         for key, value in self.config.items():
-            if key in {"lang", "format", "data"}:
+            if key in {"lang", "format", "data", "pbn"} or key in _ATTR_MAP:
                 continue
             attr_pairs.append((f"data-{key}", str(value)))
 

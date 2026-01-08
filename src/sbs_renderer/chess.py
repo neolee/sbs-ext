@@ -18,8 +18,7 @@ _ATTR_MAP = {
 }
 _BOOL_ATTRS = {
     "interactive": "interactive",
-    "showAxes": "show-axes",
-    "lockSize": "lock-size",
+    "coords": "coords",
 }
 _NUM_ATTRS = {
     "size": "size",
@@ -34,6 +33,23 @@ class ChessBlock:
 
     @classmethod
     def from_fence(cls, raw: str) -> "ChessBlock":
+        # Handle explicit config/data split via '---'
+        if "---" in raw:
+            parts = raw.split("---", 1)
+            config_part = parts[0].strip()
+            pgn_part = parts[1].strip()
+
+            import yaml
+            # Try to parse the first part as YAML
+            try:
+                config = yaml.safe_load(config_part)
+                if isinstance(config, dict):
+                    # Prioritize 'pgn' as the key for consistency
+                    config["pgn"] = pgn_part
+                    return cls(config)
+            except yaml.YAMLError:
+                pass
+
         parsed = parse_fence_config(raw)
         if parsed is not None:
             return cls(parsed)
@@ -77,7 +93,7 @@ class ChessBlock:
 
         # Additional custom attributes become data-* for future use.
         for key, value in config.items():
-            if key in _ATTR_MAP or key in _BOOL_ATTRS or key in _NUM_ATTRS or key == "pgn":
+            if key in _ATTR_MAP or key in _BOOL_ATTRS or key in _NUM_ATTRS or key in {"pgn", "data"}:
                 continue
             add_attr(f"data-{key}", value)
 
@@ -85,7 +101,7 @@ class ChessBlock:
             f"{name}='{html.escape(value, quote=True)}'" for name, value in attrs
         ).strip()
 
-        pgn_payload = str(config.get("pgn") or "").strip()
+        pgn_payload = str(config.get("pgn") or config.get("data") or "").strip()
         script_html = ""
         if pgn_payload:
             escaped = escape_script_payload(pgn_payload)

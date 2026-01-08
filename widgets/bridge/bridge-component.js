@@ -280,13 +280,24 @@ template.innerHTML = `
     vertical-align: -0.03em;
     margin-right: 2px;
 }
+
+/* Layout variants */
+:host([layout="compact"]) .bridge-meta-header,
+:host([layout="mini"]) .bridge-meta-header {
+    display: none;
+}
+
+:host([layout="mini"]) .bidding-section,
+:host([layout="mini"]) .lead-section {
+    display: none;
+}
 </style>
 <div class="sbs-bridge-widget" part="container"></div>
 `;
 
 export class SBSBridgeDiagram extends HTMLElement {
     static get observedAttributes() {
-        return ['lang', 'data-pbn'];
+        return ['lang', 'data-pbn', 'layout'];
     }
 
     constructor() {

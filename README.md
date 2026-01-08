@@ -16,49 +16,69 @@ Display a chess board from a FEN string plus an optional PGN move history. The c
 - `interactive` (bool): whether the renderer should allow piece movement and undo (default: `false`).
 - `orientation` (string): `white` or `black` to set board orientation (default: `white`).
 - `size` (string or number): preferred board size (e.g., `480`).
-- `layout` (string): `full`, `compact`, `minimal`, or `board-only` to control visible sidebar panels (default: `full`).
+- `layout` (string): `full`, `standard`, `compact`, or `mini` to control visible sidebar panels (default: `full`).
 - `lang` (string): UI language, `zh` or `en` (default: `zh`).
-- `showAxes` (bool): whether to show board coordinates (default: `true`).
+- `coords` (bool): whether to show board coordinates (default: `true`).
 
 #### Usage Example
+
+**1. Using the `---` separator (Recommended for long PGN):**
 
 ````markdown
 ```sbs-chess
 title: "The Immortal Game"
-fen: "r1bqkbnr/pppppppp/2n5/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 0 1"
 interactive: true
-layout: full
-orientation: white
-size: 480
+---
+[Event "The Immortal Game"]
+...
+1. e4 e5 2. f4 exf4 ...
 ```
 ````
 
-#### Technical Notes
+**2. Using the `pgn` key in YAML:**
 
-- If `interactive: true`, the widget enforces legal moves and provides an undo/redo stack.
-- If `interactive: false`, all interactivity is disabled.
-- If `pgn` is provided, the widget offers a step-through interface to navigate through the moves.
-- If no data is provided, an initial board is rendered.
+````markdown
+```sbs-chess
+title: "The Immortal Game"
+interactive: true
+pgn: |
+  [Event "The Immortal Game"]
+  ...
+```
+````
 
 ### Bridge
 
 Display a Bridge hand/diagram. This extension targets static renderings (diagrams) only; interactive play is not supported.
 
-- `data` or `pbn` (string): PBN text containing deal, auction, or play information.
+- `pbn` or `data` (string): PBN text containing deal, auction, or play information.
 - `lang` (string): UI language, `zh` or `en` (default: `zh`).
 - `format` (string): data format, typically `pbn`.
 
 #### Usage Example
 
+The Bridge widget supports two equivalent ways to provide PBN data:
+
+**1. Using the `---` separator (Recommended for long PBN):**
+
 ````markdown
 ```sbs-bridge
 lang: "en"
-data: |
+---
+[Event "Example"]
+[Deal "N:AKQJ.T98.A87.654 ..."]
+...
+```
+````
+
+**2. Using the `pbn` key in YAML:**
+
+````markdown
+```sbs-bridge
+lang: "en"
+pbn: |
   [Event "Example"]
-  [Deal "N:AKQJ.T98.A87.654 ..."]
-  [Auction "N"]
-  1C Pass 1H Pass
-  1NT Pass 3NT AP
+  ...
 ```
 ````
 
@@ -67,13 +87,13 @@ data: |
 Display a Go board. Authors may provide SGF data for full game records.
 
 - `sgf` (string): SGF content.
-- `size` (number): Board size, typically `19`, `13`, or `9` (default: `19`).
+- `board` (number): Board size, typically `19`, `13`, or `9` (default: `19`).
 - `interactive` (bool): whether to show playback controls (default: `false`).
 - `move` or `initialMove` (number): move index to display initially (default: `-1`).
 - `showMoveNumbers` (bool or number): whether to display move numbers on stones. If a number is provided, only shows the last N moves.
 - `theme` (string): visual theme, e.g., `book` (default: `book`).
-- `coords` or `showCoords` (bool): whether to show coordinates (default: `true`).
-- `width` (string or number): preferred display width.
+- `coords` (bool): whether to show coordinates (default: `true`).
+- `size` (string or number): preferred display width (pixel).
 - `lang` (string): UI language, `zh` or `en`.
 
 #### Usage Example
@@ -104,7 +124,7 @@ sgf: "(;GM[1]FF[4]SZ[19];B[pd];W[dd];B[qp];W[dq])"
 
 #### Technical Notes
 
-- **Data Split**: The `sbs-go` block supports using `---` to separate YAML configuration (above) from the raw SGF payload (below). Both styles are equivalent; the separator style is often cleaner for large game records.
+- **Data Split**: All three widgets (`sbs-chess`, `sbs-bridge`, `sbs-go`) support using `---` to separate YAML configuration (above) from the raw game payload (below). Both styles are equivalent; the separator style is often cleaner for large game records.
 - When SGF is provided, the widget offers step-through playback of moves if `interactive` is true.
 - If no data is provided, an empty board is rendered.
 - Markers like `LB` (labels), `TR` (triangles), `SQ` (squares), and `CR` (circles) in SGF are supported.

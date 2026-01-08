@@ -71,12 +71,12 @@ class TestSBSRenderer(unittest.TestCase):
         widgets = re.findall(r"<sbs-chess", html)
         self.assertGreaterEqual(len(widgets), 7)
 
-    def test_chess_sticky_uses_board_only_layout(self) -> None:
+    def test_chess_sticky_uses_mini_layout(self) -> None:
         text = load_markdown("chess-sticky-layout.md")
         html = self.renderer.render(text)
         self.assertIn("sbs-sticky-container", html)
         self.assertIn("<sbs-chess", html)
-        self.assertIn("board-only", html)
+        self.assertIn("mini", html)
 
     def test_go_demo_renders_go_elements(self) -> None:
         text = load_markdown("go-demo.md")
@@ -126,7 +126,7 @@ initialMove: 75
     def test_go_coords_false_serialization(self) -> None:
         text = """
 ```sbs-go
-showCoords: false
+coords: false
 ---
 (;SGF)
 ```
