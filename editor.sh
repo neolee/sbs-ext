@@ -4,7 +4,7 @@
 PROJECT_ROOT=$(cd "$(dirname "$0")" && pwd)
 PYTHONPATH="$PROJECT_ROOT/src"
 PID_FILE="$PROJECT_ROOT/editor.pid"
-PORT=8080
+PORT=3000
 LOG_FILE="$PROJECT_ROOT/editor.log"
 
 start() {

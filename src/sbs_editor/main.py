@@ -45,4 +45,13 @@ app.mount("/", StaticFiles(directory="src/sbs_editor/static", html=True), name="
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=8080)
+    # Use string import format to enable reload support.
+    # We watch the parent 'src' directory to catch changes in both editor and renderer.
+    project_src = os.path.dirname(os.path.dirname(__file__))
+    uvicorn.run(
+        "sbs_editor.main:app",
+        host="127.0.0.1",
+        port=3000,
+        reload=True,
+        reload_dirs=[project_src]
+    )

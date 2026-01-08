@@ -162,4 +162,5 @@ This document serves as a persistent context file for AI agents working on the `
     - Deprecated legacy `parseSGF()` in `widgets/go/sgf-parser.js` in favor of the more robust `smartgame.js` parser.
 - **Strict Data Model**: Removed redundant or legacy keys including `lockSize` (Chess), `pgn` (from Bridge configuration), and all backend legacy mapping layers (`_LAYOUT_MAP`).
 - **Editor Synchronization**: Synchronized the SBS Editor's default samples and internal logic with the new parameter schema.
+- **Auto-Reload Support**: Enabled `uvicorn` auto-reload in `src/sbs_editor/main.py`; the editor server now automatically restarts when changes are detected in the `src/` directory.
 - **Test Integrity**: Updated all markdown test fixtures and assertions in `tests/test_renderer.py` to reflect renamed CSS classes and attributes.
