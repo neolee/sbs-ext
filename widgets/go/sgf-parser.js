@@ -7,14 +7,29 @@ export function parseSGF(sgf) {
     const nodes = [];
     let index = 0;
 
-    // Remove newlines and extra spaces
-    sgf = sgf.replace(/\r?\n|\r/g, ' ').trim();
+    // Remove newlines and extra spaces, but be careful not to merge adjacent properties
+    sgf = sgf.replace(/\r?\n|\r/g, ' ').replace(/\s+/g, ' ').trim();
 
     function parseProperty() {
         const match = sgf.slice(index).match(/^([A-Z]+)((?:\[.*?\])+)/);
         if (match) {
             const key = match[1];
-            const values = match[2].slice(1, -1).split('][');
+            const propertyValuePart = match[2];
+            const values = [];
+            let propIndex = 0;
+            while (propIndex < propertyValuePart.length) {
+                if (propertyValuePart[propIndex] === '[') {
+                    let end = propertyValuePart.indexOf(']', propIndex);
+                    if (end !== -1) {
+                        values.push(propertyValuePart.slice(propIndex + 1, end));
+                        propIndex = end + 1;
+                    } else {
+                        break;
+                    }
+                } else {
+                    propIndex++;
+                }
+            }
             index += match[0].length;
             return { key, values };
         }
@@ -41,8 +56,16 @@ export function parseSGF(sgf) {
 
     // Find the start of the first game tree
     const start = sgf.indexOf('(');
-    if (start === -1) return [];
-    index = start + 1;
+    if (start === -1) {
+        // Fallback: if no outer parenthesis, try to find a node directly
+        if (sgf.startsWith(';')) {
+            index = 0;
+        } else {
+            return [];
+        }
+    } else {
+        index = start + 1;
+    }
 
     while (index < sgf.length) {
         if (sgf[index] === ';') {

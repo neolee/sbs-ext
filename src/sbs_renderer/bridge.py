@@ -26,7 +26,8 @@ class BridgeBlock:
 
     def to_html(self) -> str:
         """Serialize to the <sbs-bridge> custom element."""
-        pbn_payload = (self.config.get("data") or "").strip()
+        # Support both 'data' and 'pbn' keys for the payload
+        pbn_payload = (self.config.get("data") or self.config.get("pbn") or "").strip()
         if not pbn_payload:
             return "<sbs-bridge></sbs-bridge>"
 

@@ -11,6 +11,7 @@
             height: 100%;
             overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f0f2f5;
         }
         .container {
             display: flex;
@@ -19,12 +20,20 @@
         }
         .toolbar {
             height: 50px;
-            background: #f5f5f5;
-            border-bottom: 1px solid #ddd;
+            background: #ffffff;
+            border-bottom: 1px solid #dcdfe6;
             display: flex;
             align-items: center;
-            padding: 0 15px;
-            gap: 10px;
+            padding: 0 20px;
+            gap: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+        .toolbar h1 {
+            margin: 0;
+            font-size: 18px;
+            color: #303133;
+            margin-right: 10px;
         }
         .main {
             display: flex;
@@ -33,13 +42,21 @@
         }
         #editor-container {
             flex: 1;
-            border-right: 1px solid #ddd;
+            border-right: 1px solid #dcdfe6;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+        .cm-editor {
             height: 100%;
         }
         #preview-container {
             flex: 1;
             background: #fff;
             height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         iframe {
             width: 100%;
@@ -47,47 +64,127 @@
             border: none;
         }
         .btn {
-            padding: 5px 12px;
+            padding: 6px 15px;
             cursor: pointer;
+            background: #409eff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #66b1ff;
+        }
+        .btn-secondary {
+            background: #909399;
+        }
+        .btn-secondary:hover {
+            background: #a6a9ad;
+        }
+        select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #dcdfe6;
+            outline: none;
+        }
+        .spacer {
+            flex: 1;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="toolbar">
-            <strong>SBS Editor</strong>
+            <h1>SBS Editor</h1>
             <select id="theme-select">
                 <option value="default">Default Theme</option>
                 <option value="classic">Classic Theme</option>
             </select>
+            <div class="dropdown">
+                <select id="widget-insert">
+                    <option value="">Insert Widget...</option>
+                    <option value="chess">Chess Board</option>
+                    <option value="bridge">Bridge Deal</option>
+                    <option value="go">Go Board</option>
+                    <option value="sticky">Sticky Layout</option>
+                </select>
+            </div>
+            <div class="spacer"></div>
+            <button class="btn btn-secondary" id="export-btn">Export MD</button>
             <button class="btn" id="render-btn">Render</button>
         </div>
         <div class="main">
-            <div id="editor-container">
-                <textarea id="editor" style="width:100%; height:100%; border:none; padding:10px; font-family:monospace; font-size:14px; outline:none; resize:none;"># SBS Hello
-                
-::: sbs-sticky
-```sbs-chess
-fen: rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1
-pgn: 1. e4
-```
-Sticky layout with chess widget.
-:::</textarea>
-            </div>
+            <div id="editor-container"></div>
             <div id="preview-container">
                 <iframe id="preview-frame"></iframe>
             </div>
         </div>
     </div>
 
-    <script>
-        const editor = document.getElementById('editor');
+    <!-- CodeMirror 6 dependencies via esm.sh -->
+    <script type="module">
+        import { EditorView, basicSetup } from "https://esm.sh/codemirror";
+        import { EditorState } from "https://esm.sh/@codemirror/state";
+        import { markdown } from "https://esm.sh/@codemirror/lang-markdown";
+        import { keymap } from "https://esm.sh/@codemirror/view";
+        import { indentWithTab } from "https://esm.sh/@codemirror/commands";
+
+        const editorContainer = document.getElementById('editor-container');
         const previewFrame = document.getElementById('preview-frame');
         const renderBtn = document.getElementById('render-btn');
         const themeSelect = document.getElementById('theme-select');
+        const widgetInsert = document.getElementById('widget-insert');
+        const exportBtn = document.getElementById('export-btn');
+
+        const initialDoc = `# SBS Editor Demo
+
+Welcome to the **Smart Book Standard** editor.
+
+## Chess Example
+
+::: sbs-sticky
+\`\`\`sbs-chess
+title: "Sticky Chess Demo"
+fen: "r1bq1rk1/pp1n1pbp/3p1np1/2pPp3/2P1P3/2N2N2/PPQBBPPP/R3K2R w KQ - 0 11"
+layout: "conpact"
+size: 360
+orientation: "black"
+interactive: true
+\`\`\`
+This is a sticky chess board. You can scroll the text on the right while the board stays visible.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.
+:::
+
+## Bridge Example
+
+\`\`\`sbs-bridge
+lang: zh
+data: |
+  [Main "Scenario 1"]
+  [Deal "N:AKQJ.AKQJ.AK.AQJ 9876.9876.8.K982 5432.5432.54.754 T.T.QJT97632.T63"]
+  [Declarer "N"]
+  [Contract "6H"]
+  [Result "13"]
+\`\`\`
+
+## Go Example
+
+\`\`\`sbs-go
+theme: book
+width: 500
+showMoveNumbers: 10
+interactive: true
+---
+(;GM[1]FF[4]SZ[19]AP[SmartGo:2.7.1]CA[UTF-8]GN[Demo Game]DT[2025-12-23]PB[Black Player]PW[White Player]BR[1d]WR[1d]KM[6.5]RE[B+R];B[pd];W[dp];B[pp];W[dd];B[pj];W[nc];B[qf];W[pb];B[qc];W[kc];B[fq];W[cn];B[jp];W[dr];B[cq];W[dq];B[cp];W[co];B[br];W[cr];B[bq];W[er];B[fr];W[bs];B[ar];W[do];B[bo];W[bn];B[ap];W[cf];B[ch];W[eg];B[eh];W[fg];B[fh];W[gh];B[gi];W[hi];B[gj];W[hj];B[hk];W[ik];B[hl];W[il];B[im];W[jm];B[in];W[jn];B[jo];W[ko];B[kp];W[lo];B[lp];W[mo];B[mp];W[no];B[np];W[oo];B[po];W[on];B[pn];W[om];B[pm];W[ol];B[pl];W[ok];B[pk];W[oj];B[oi];W[ni];B[oh];W[nh];B[ng];W[mg];B[mf];W[lg];B[lf];W[kf];B[ke];W[je];B[kd];W[jd];B[lc];W[kb];B[lb];W[la];B[ma];W[ka];B[mb];W[nb];B[na];W[oa];B[mc];W[nd];B[ne];W[oe];B[of];W[pe];B[qe];W[pf];B[pg];W[qg];B[qh];W[rg];B[rh];W[rf];B[re];W[se];B[rd];W[sd];B[sc];W[sf];B[rb];W[ra];B[qa];W[pa];B[qb];W[pc];B[pd])
+\`\`\`
+`;
+
+        let lastRenderTime = 0;
+        const RENDER_DEBOUNCE = 300;
 
         async function render() {
-            const text = editor.value;
+            const text = view.state.doc.toString();
             const theme = themeSelect.value;
             
             try {
@@ -98,16 +195,82 @@ Sticky layout with chess widget.
                 });
                 const data = await response.json();
                 
-                // Use blob to handle the HTML content and ensure correct base path for widgets
-                const blob = new Blob([data.html], { type: 'text/html' });
-                previewFrame.src = URL.createObjectURL(blob);
+                // Using srcdoc for direct injection, which handles origin-relative paths (/widgets/...) reliably
+                previewFrame.srcdoc = data.html;
             } catch (err) {
                 console.error('Render failed:', err);
             }
         }
 
+        const updateListener = EditorView.updateListener.of((update) => {
+            if (update.docChanged) {
+                const now = Date.now();
+                if (now - lastRenderTime > RENDER_DEBOUNCE) {
+                    lastRenderTime = now;
+                    render();
+                } else {
+                    clearTimeout(window._renderTimer);
+                    window._renderTimer = setTimeout(render, RENDER_DEBOUNCE);
+                }
+            }
+        });
+
+        const state = EditorState.create({
+            doc: initialDoc,
+            extensions: [
+                basicSetup,
+                markdown(),
+                keymap.of([indentWithTab]),
+                updateListener,
+                EditorView.lineWrapping
+            ]
+        });
+
+        const view = new EditorView({
+            state,
+            parent: editorContainer
+        });
+
         renderBtn.addEventListener('click', render);
-        
+        themeSelect.addEventListener('change', render);
+
+        widgetInsert.addEventListener('change', () => {
+            const val = widgetInsert.value;
+            if (!val) return;
+
+            let snippet = "";
+            if (val === 'chess') {
+                snippet = "\n```sbs-chess\ntitle: \"Initial Position\"\nfen: \"startpos\"\nlayout: \"full\"\ninteractive: true\n```\n";
+            } else if (val === 'bridge') {
+                snippet = "\n```sbs-bridge\nlang: zh\ndata: |\n  [Main \"Scenario\"]\n  [Deal \"N:AKQJ.AKQJ.AK.AQJ 9876.9876.8.K982 5432.5432.54.754 T.T.QJT97632.T63\"]\n  [Declarer \"N\"]\n  [Contract \"6H\"]\n```\n";
+            } else if (val === 'go') {
+                snippet = "\n```sbs-go\ntheme: book\ninteractive: true\n---\n(;GM[1]FF[4]SZ[19]PB[Black]PW[White];B[pd];W[dp])\n```\n";
+            } else if (val === 'sticky') {
+                snippet = "\n::: sbs-sticky\n```sbs-chess\n...\n```\nNarration goes here.\n:::\n";
+            }
+
+            if (snippet) {
+                const cursor = view.state.selection.main.head;
+                view.dispatch({
+                    changes: { from: cursor, insert: snippet },
+                    selection: { anchor: cursor + snippet.length }
+                });
+                view.focus();
+            }
+            widgetInsert.value = "";
+        });
+
+        exportBtn.addEventListener('click', () => {
+            const text = view.state.doc.toString();
+            const blob = new Blob([text], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'document.md';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
         // Initial render
         render();
     </script>

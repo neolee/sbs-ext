@@ -57,7 +57,7 @@ This document serves as a persistent context file for AI agents working on the `
   - **Layout**: Sticky positioning for the first child element.
 
 ## 4. Project Status
-- **Date**: December 23, 2025
+- **Date**: January 08, 2026
 - **Phase**: **Implementation**
 - **Current State**:
   - Repository initialized; `README.md` and `sbs-1.1.md` upgraded to **SBS 1.1**.
@@ -69,12 +69,15 @@ This document serves as a persistent context file for AI agents working on the `
   - Go widget promoted to `widgets/go/` with `<sbs-go>` custom element and full SGF support.
   - Renderer supports `sbs-go` fenced blocks with YAML configuration and SGF payloads.
   - Sticky layout verified with Bridge, Chess, and Go widgets.
+  - **SBS Editor** released with live preview, CodeMirror 6 integration, and FastAPI backend.
 - **Immediate Next Steps**:
-  - Expand automated tests/fixtures covering widgets (especially chess/go), themes, and CLI variants.
   - Provide guidance + tooling for author-defined themes/typography overrides.
+  - Explore mobile-specific layout optimizations for the editor preview.
 
 ## 5. Technical Context
-- **Dependencies**: `markdown-it-py` (Python), Standard Web APIs (JS).
+- **Backend**: FastAPI (Python 3.11+) for the editor and rendering service.
+- **Frontend**: Vanilla JS, CodeMirror 6 (Editor), Web Components (Widgets).
+- **Dependencies**: `markdown-it-py` (Python), `smartgame.js` (JS SGF Parser), Standard Web APIs (JS).
 - **Plugins**: `mdit-py-plugins` (specifically `attrs`, `container`).
 - **Testing**: All implementations must include unit tests.
 
@@ -140,6 +143,11 @@ This document serves as a persistent context file for AI agents working on the `
 - Updated `widgets/index.js` for dynamic loading of the Go module.
 - Verified rendering with `go-demo.md` and `go-sticky-layout.md`.
 
-### 2025-12-23 Update (Go Widget Tests)
-- Expanded `tests/test_renderer.py` with comprehensive unit tests for the Go widget.
-- Verified rendering of `<sbs-go>` elements, sticky layout wrapping, and attribute serialization (including `move` alias, `initialMove`, `showMoveNumbers` ranges, and `showCoords` toggles).
+### 2026-01-08 Update (SBS Editor Release)
+- Shipped the first version of the **SBS Editor**, a web-based live preview tool for SBS Markdown.
+- Built with **FastAPI** (Backend) and **CodeMirror 6** (Frontend), featuring a dual-pane layout.
+- Preview pane uses `iframe.srcdoc` to ensure reliable loading of Web Component widgets and styles.
+- Integrated a robust SGF parser (**smartgame.js**) into the Go widget, significantly improving compatibility with real-world game records.
+- Refined the Bridge widget renderer to support both `data` and `pbn` keys, matching existing Markdown fixtures.
+- Added a management script (`editor.sh`) for starting/stopping the editor service with background logging.
+- Verified editor rendering parity against all `tests/markdown/` baseline fixtures.

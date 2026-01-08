@@ -1,6 +1,7 @@
 import { GoGame, BLACK, WHITE, EMPTY } from './go-game.js';
 import { GoBoard } from './go-board.js';
-import { parseSGF, sgfToCoord } from './sgf-parser.js';
+import { smartgame } from './vendor/smartgame.js';
+import { sgfToCoord } from './sgf-parser.js';
 
 export const I18N = {
     zh: {
@@ -64,12 +65,15 @@ export class GoController {
     }
 
     loadSGF(sgf) {
-        const allNodes = parseSGF(sgf);
-        if (allNodes.length === 0) return;
+        const collection = smartgame.parse(sgf);
+        if (!collection.gameTrees || collection.gameTrees.length === 0) return;
+
+        const tree = collection.gameTrees[0];
+        if (!tree.nodes || tree.nodes.length === 0) return;
 
         // First node is usually root
-        this.rootNode = allNodes[0];
-        this.moves = allNodes.slice(1).filter(n => n.B || n.W);
+        this.rootNode = tree.nodes[0];
+        this.moves = tree.nodes.slice(1).filter(n => n.B || n.W);
 
         // Extract size from root node if present
         if (this.rootNode.SZ) {
@@ -167,7 +171,7 @@ export class GoController {
                 start = Math.max(0, this.currentMoveIndex - this.showMoveNumbers + 1);
             } else if (typeof this.showMoveNumbers === 'object') {
                 start = (this.showMoveNumbers.start || 1) - 1;
-                if (this.showMoveNumbers.end !== Infinity) {
+                if (this.showMoveNumbers.end !== undefined && this.showMoveNumbers.end !== Infinity) {
                     end = Math.min(this.currentMoveIndex, this.showMoveNumbers.end - 1);
                 }
             }

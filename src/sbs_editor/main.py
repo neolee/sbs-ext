@@ -9,7 +9,15 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sbs_renderer.renderer import SBSRenderer
 
+from fastapi.responses import FileResponse
+
 app = FastAPI(title="SBS Editor API")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("src/sbs_editor/static/favicon.ico")
+
 
 # Mount widgets directory to serve SBS components
 # The renderer will use /widgets as the base path for scripts/css

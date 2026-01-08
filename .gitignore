@@ -3,6 +3,7 @@
 log.txt
 **/log.txt
 **/*.log
+**/*.pid
 
 .projectile-cache*
 
