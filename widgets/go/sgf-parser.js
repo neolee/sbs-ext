@@ -1,5 +1,10 @@
 /**
  * Simple SGF Parser for Go (Weiqi)
+ * 
+ * @deprecated This function is no longer used by <sbs-go>.
+ * The player now uses the more robust 'smartgame.js' vendor library.
+ * This remains here for reference only.
+ * 
  * Supports basic node properties and main branch navigation.
  */
 

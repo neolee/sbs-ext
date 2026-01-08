@@ -57,7 +57,7 @@ This document serves as a persistent context file for AI agents working on the `
   - **Layout**: Sticky positioning for the first child element.
 
 ## 4. Project Status
-- **Date**: January 08, 2026
+- **Date**: January 09, 2026
 - **Phase**: **Implementation**
 - **Current State**:
   - Repository initialized; `README.md` and `sbs-1.1.md` upgraded to **SBS 1.1**.
@@ -70,6 +70,7 @@ This document serves as a persistent context file for AI agents working on the `
   - Renderer supports `sbs-go` fenced blocks with YAML configuration and SGF payloads.
   - Sticky layout verified with Bridge, Chess, and Go widgets.
   - **SBS Editor** released with live preview, CodeMirror 6 integration, and FastAPI backend.
+  - **Parameter Standardization**: Unified `layout` presets (`compact`, `mini`, `full`) across all games; renamed `Axes` to `Coords` in Chess; standardized Go dimensions (`size`, `board`).
 - **Immediate Next Steps**:
   - Provide guidance + tooling for author-defined themes/typography overrides.
   - Explore mobile-specific layout optimizations for the editor preview.
@@ -151,3 +152,14 @@ This document serves as a persistent context file for AI agents working on the `
 - Refined the Bridge widget renderer to support both `data` and `pbn` keys, matching existing Markdown fixtures.
 - Added a management script (`editor.sh`) for starting/stopping the editor service with background logging.
 - Verified editor rendering parity against all `tests/markdown/` baseline fixtures.
+
+### 2026-01-09 Update (Widget Parameter Refactoring)
+- **Standardized Layout Presets**: Unified `layout` values across Bridge and Chess: `compact` (was `minimal`), `mini` (was `board-only`), and `full`.
+- **Chess Improvements**: Renamed all instances of `Axes` to `Coords` (schema, JS methods, and CSS classes like `.board-coords`) to align with common terminology.
+- **Go Widget Overhaul**: 
+    - Standardized naming: `size` (pixel width), `board` (grid size), and `showMoveNumbers` (visibility threshold).
+    - Unified the YAML/Data split logic using the `---` separator, allowing clean separation of configuration and SGF/PGN/PBN payloads.
+    - Deprecated legacy `parseSGF()` in `widgets/go/sgf-parser.js` in favor of the more robust `smartgame.js` parser.
+- **Strict Data Model**: Removed redundant or legacy keys including `lockSize` (Chess), `pgn` (from Bridge configuration), and all backend legacy mapping layers (`_LAYOUT_MAP`).
+- **Editor Synchronization**: Synchronized the SBS Editor's default samples and internal logic with the new parameter schema.
+- **Test Integrity**: Updated all markdown test fixtures and assertions in `tests/test_renderer.py` to reflect renamed CSS classes and attributes.
