@@ -20,21 +20,23 @@ sudo useradd -r -g sentry -s /usr/bin/nologin sentry
 
 # 2. Prepare the directory and clone the repository
 sudo mkdir -p /var/www
-sudo chown sentry:sentry /var/www
 cd /var/www
 
-# Clone as your current user or sentry
-git clone https://github.com/your-repo/sbs-ext.git
+# Clone as your current user (you may need sudo for the initial clone)
+# Then ensure the directory is owned by your developer user for easy updates.
+sudo git clone https://github.com/your-repo/sbs-ext.git
+sudo chown -R $USER:$USER /var/www/sbs-ext
 cd sbs-ext
 
 # 3. Sync dependencies and create a virtual environment
-# Run this as your current user who has internet access and permissions.
-# This creates the .venv directory correctly.
+# Run this as your current user (e.g., 'neo'). 
+# This ensures git and uv have the right credentials and ownership.
 uv sync
 
-# 4. Finalize permissions
-# Transfer ownership of the entire project (including .venv) to the 'sentry' user.
-sudo chown -R sentry:sentry /var/www/sbs-ext
+# 4. Ensure directory access
+# The 'sentry' user only needs read and execute permission on these directories.
+# Most Arch Linux systems default to 755 for directories, which is sufficient.
+sudo chmod +x /var/www /var/www/sbs-ext
 ```
 
 ## 3. Systemd Service Configuration
@@ -117,8 +119,9 @@ sudo systemctl reload nginx
 
 - **Check logs**: `journalctl -u sbs-editor -f`
 - **Restart Backend**: `sudo systemctl restart sbs-editor`
-- **Update Application**:
+- **Update Application** (Run as your developer user):
   ```bash
+  cd /var/www/sbs-ext
   git pull
   uv sync
   sudo systemctl restart sbs-editor
@@ -128,4 +131,5 @@ sudo systemctl reload nginx
 
 - **Firewall**: Ensure only 80 (and 443) are open to the world.
 - **SSL**: Use `certbot` for Let's Encrypt certificates.
-- **Permissions**: Ensure `/var/www/sbs-ext` is owned by the `sentry` user. Avoid running as `root`.
+- **Permissions**: The application code is owned by the developer user (e.g., `neo`) and is **read-only** for the `sentry` service user. This prevents the service from being used to modify its own source code in case of a breach.
+- **Service Isolation**: Consider adding `CapabilityBoundingSet=`, `PrivateTmp=yes`, and `ProtectSystem=full` to the `[Service]` section for further hardening.
