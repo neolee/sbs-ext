@@ -11,17 +11,27 @@ This document provides a step-by-step guide for deploying the SBS Editor on an A
 
 ## 2. Environment Setup
 
-Clone the repository and use `uv` to manage dependencies. `uv` is significantly faster and handles virtual environments automatically.
+Create a dedicated system user to run the services, and prepare the project directory.
 
 ```bash
-# Clone the repository
+# 1. Create the system user 'sentry'
+sudo useradd -r -s /usr/bin/nologin sentry
+
+# 2. Prepare the directory and clone the repository
+sudo mkdir -p /var/www
+sudo chown sentry:sentry /var/www
 cd /var/www
+
+# Clone as your current user or sentry
 git clone https://github.com/your-repo/sbs-ext.git
 cd sbs-ext
 
-# Sync dependencies and create a virtual environment
+# 3. Sync dependencies and create a virtual environment
 # This will use the pyproject.toml and create a .venv directory
 uv sync
+
+# 4. Finalize permissions
+sudo chown -R sentry:sentry /var/www/sbs-ext
 ```
 
 ## 3. Systemd Service Configuration
@@ -36,9 +46,9 @@ Description=SBS Editor - FastAPI Backend
 After=network.target
 
 [Service]
-# Recommended: create a dedicated user, e.g., 'sbs-user'
-User=www-data
-Group=www-data
+# Using the dedicated 'sentry' user
+User=sentry
+Group=sentry
 WorkingDirectory=/var/www/sbs-ext
 Environment="PYTHONPATH=/var/www/sbs-ext/src"
 # Use uv run to ensure the correct virtual environment is used
@@ -117,4 +127,4 @@ sudo systemctl reload nginx
 
 - **Firewall**: Ensure only 80 (and 443) are open to the world.
 - **SSL**: Use `certbot` for Let's Encrypt certificates.
-- **Permissions**: Ensure `/var/www/sbs-ext` is owned by `www-data` or the user specified in the service file.
+- **Permissions**: Ensure `/var/www/sbs-ext` is owned by the `sentry` user. Avoid running as `root`.
