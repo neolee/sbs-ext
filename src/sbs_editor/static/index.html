@@ -238,51 +238,10 @@
         const importBtn = document.getElementById('import-btn');
         const importInput = document.getElementById('import-input');
 
-        const initialDoc = `# SBS Editor Demo
-
-Welcome to the **Smart Book Standard** editor.
-
-## Chess Example
-
-::: sbs-sticky
-\`\`\`sbs-chess
-title: "Sticky Chess Demo"
-layout: "compact"
-coords: true
-orientation: "black"
-interactive: true
----
-r1bq1rk1/pp1n1pbp/3p1np1/2pPp3/2P1P3/2N2N2/PPQBBPPP/R3K2R w KQ - 0 11
-\`\`\`
-This is a sticky chess board. You can scroll the text on the right while the board stays visible.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.
-:::
-
-## Bridge Example
-
-\`\`\`sbs-bridge
-title: "Bridge Demo"
-layout: "full"
----
-[Main "Scenario 1"]
-[Deal "N:AKQJ.AKQJ.AK.AQJ 9876.9876.8.K982 5432.5432.54.754 T.T.QJT97632.T63"]
-[Declarer "N"]
-[Contract "6H"]
-[Result "13"]
-\`\`\`
-
-## Go Example
-
-\`\`\`sbs-go
-theme: book
-size: 500
-board: 19
-showMoveNumbers: 10
-interactive: true
----
-(;GM[1]FF[4]SZ[19]AP[SmartGo:2.7.1]CA[UTF-8]GN[Demo Game]DT[2025-12-23]PB[Black Player]PW[White Player]BR[1d]WR[1d]KM[6.5]RE[B+R];B[pd];W[dp];B[pp];W[dd];B[pj];W[nc];B[qf];W[pb];B[qc];W[kc];B[fq];W[cn];B[jp];W[dr];B[cq];W[dq];B[cp];W[co];B[br];W[cr];B[bq];W[er];B[fr];W[bs];B[ar];W[do];B[bo];W[bn];B[ap];W[cf];B[ch];W[eg];B[eh];W[fg];B[fh];W[gh];B[gi];W[hi];B[gj];W[hj];B[hk];W[ik];B[hl];W[il];B[im];W[jm];B[in];W[jn];B[jo];W[ko];B[kp];W[lo];B[lp];W[mo];B[mp];W[no];B[np];W[oo];B[po];W[on];B[pn];W[om];B[pm];W[ol];B[pl];W[ok];B[pk];W[oj];B[oi];W[ni];B[oh];W[nh];B[ng];W[mg];B[mf];W[lg];B[lf];W[kf];B[ke];W[je];B[kd];W[jd];B[lc];W[kb];B[lb];W[la];B[ma];W[ka];B[mb];W[nb];B[na];W[oa];B[mc];W[nd];B[ne];W[oe];B[of];W[pe];B[qe];W[pf];B[pg];W[qg];B[qh];W[rg];B[rh];W[rf];B[re];W[se];B[rd];W[sd];B[sc];W[sf];B[rb];W[ra];B[qa];W[pa];B[qb];W[pc];B[pd])
-\`\`\`
-`;
+        let snippets = {
+            demo: "",
+            widgets: {}
+        };
 
         let lastRenderTime = 0;
         const RENDER_DEBOUNCE = 300;
@@ -320,7 +279,7 @@ interactive: true
         });
 
         const state = EditorState.create({
-            doc: initialDoc,
+            doc: "# Loading...",
             extensions: [
                 basicSetup,
                 markdown(),
@@ -335,6 +294,23 @@ interactive: true
             parent: editorContainer
         });
 
+        async function fetchSnippets() {
+            try {
+                const res = await fetch('/api/snippets');
+                snippets = await res.json();
+
+                // If the user hasn't typed anything yet, load the demo
+                if (view.state.doc.toString() === "# Loading...") {
+                     view.dispatch({
+                        changes: { from: 0, to: view.state.doc.length, insert: snippets.demo }
+                    });
+                    render();
+                }
+            } catch (e) {
+                console.error("Failed to fetch snippets", e);
+            }
+        }
+
         renderBtn.addEventListener('click', render);
         themeSelect.addEventListener('change', render);
 
@@ -342,16 +318,7 @@ interactive: true
             const val = widgetInsert.value;
             if (!val) return;
 
-            let snippet = "";
-            if (val === 'chess') {
-                snippet = "\n```sbs-chess\ntitle: \"Chess Game\"\nlayout: \"full\"\ncoords: true\ninteractive: true\n---\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7\n```\n";
-            } else if (val === 'bridge') {
-                snippet = "\n```sbs-bridge\ntitle: \"Bridge Hand\"\nlayout: \"full\"\n---\n[Main \"Scenario\"]\n[Deal \"N:AKQJ.AKQJ.AK.AQJ 9876.9876.8.K982 5432.5432.54.754 T.T.QJT97632.T63\"]\n[Declarer \"N\"]\n[Contract \"6H\"]\n```\n";
-            } else if (val === 'go') {
-                snippet = "\n```sbs-go\ntitle: \"Go Game\"\nsize: 400\nboard: 19\nshowMoveNumbers: 0\ninteractive: true\n---\n(;GM[1]FF[4]SZ[19]PB[Black]PW[White];B[pd];W[dp];B[pp])\n```\n";
-            } else if (val === 'sticky') {
-                snippet = "\n::: sbs-sticky\n```sbs-chess\nlayout: \"mini\"\nsize: 300\n---\n1. e4 e5\n```\nYour narration text should be placed here. It will scroll while the widget remains sticky.\n:::\n";
-            }
+            const snippet = snippets.widgets[val];
 
             if (snippet) {
                 const cursor = view.state.selection.main.head;
@@ -458,6 +425,9 @@ interactive: true
 
         // Initialize Lucide icons
         lucide.createIcons();
+
+        // Load snippets from backend
+        fetchSnippets();
 
         // Initial render
         render();

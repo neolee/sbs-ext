@@ -8,10 +8,19 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sbs_renderer.renderer import SBSRenderer
+from sbs_editor.snippets import DEMO_DOCUMENT, WIDGET_SNIPPETS
 
 from fastapi.responses import FileResponse
 
 app = FastAPI(title="SBS Editor API")
+
+
+@app.get("/api/snippets")
+async def get_snippets():
+    return {
+        "demo": DEMO_DOCUMENT,
+        "widgets": WIDGET_SNIPPETS
+    }
 
 
 @app.get("/favicon.ico", include_in_schema=False)
