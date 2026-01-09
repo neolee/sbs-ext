@@ -86,15 +86,21 @@ export function extractSanMovesFromPgn(pgn) {
         return [];
     }
     const temp = new Chess();
+    const { tags, body: sanitized } = splitPgnMetadata(pgn);
     try {
-        const { body: sanitized } = splitPgnMetadata(pgn);
         if (!sanitized) {
             return [];
         }
         temp.loadPgn(sanitized, PGN_LOAD_OPTIONS);
         return temp.history();
     } catch (err) {
-        console.warn('[sbs-chess] PGN parse failed', err.message);
+        // Milder error reporting as requested.
+        // If it has PGN tags, we warn. Otherwise we keep it to debug.
+        if (tags && Object.keys(tags).length > 0) {
+            console.warn('[sbs-chess] PGN parse failed:', err.message);
+        } else {
+            console.debug('[sbs-chess] PGN body parse failed:', err.message);
+        }
         return [];
     }
 }

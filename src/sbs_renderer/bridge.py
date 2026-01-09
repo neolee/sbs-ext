@@ -45,8 +45,8 @@ class BridgeBlock:
         parsed = parse_fence_config(raw)
         if parsed is not None:
             return cls(parsed)
-        # Fall back to treating the entire body as a PBN payload.
-        return cls({"pbn": raw})
+        # No configuration found and no explicit PBN separator.
+        return cls({})
 
     def to_html(self) -> str:
         """Serialize to the <sbs-bridge> custom element."""

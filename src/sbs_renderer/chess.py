@@ -54,8 +54,9 @@ class ChessBlock:
         if parsed is not None:
             return cls(parsed)
 
-        # Treat unparsed bodies as PGN payloads.
-        return cls({"pgn": raw})
+        # No configuration found and no explicit PGN separator.
+        # We return an empty block to avoid unwanted PGN parsing errors.
+        return cls({})
 
     def to_html(self) -> str:
         config = self.config or {}

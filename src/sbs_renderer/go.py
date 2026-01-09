@@ -57,8 +57,8 @@ class GoBlock:
         if parsed is not None:
             return cls(parsed)
 
-        # Treat unparsed bodies as SGF payloads.
-        return cls({"sgf": raw})
+        # No configuration found and no explicit SGF separator.
+        return cls({})
 
     def to_html(self) -> str:
         config = self.config or {}
