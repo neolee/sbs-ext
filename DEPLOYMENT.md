@@ -14,8 +14,9 @@ This document provides a step-by-step guide for deploying the SBS Editor on an A
 Create a dedicated system user to run the services, and prepare the project directory.
 
 ```bash
-# 1. Create the system user 'sentry'
-sudo useradd -r -s /usr/bin/nologin sentry
+# 1. Create the system user and group 'sentry'
+sudo groupadd -r sentry
+sudo useradd -r -g sentry -s /usr/bin/nologin sentry
 
 # 2. Prepare the directory and clone the repository
 sudo mkdir -p /var/www
@@ -27,16 +28,18 @@ git clone https://github.com/your-repo/sbs-ext.git
 cd sbs-ext
 
 # 3. Sync dependencies and create a virtual environment
-# This will use the pyproject.toml and create a .venv directory
+# Run this as your current user who has internet access and permissions.
+# This creates the .venv directory correctly.
 uv sync
 
 # 4. Finalize permissions
+# Transfer ownership of the entire project (including .venv) to the 'sentry' user.
 sudo chown -R sentry:sentry /var/www/sbs-ext
 ```
 
 ## 3. Systemd Service Configuration
 
-Create a `systemd` unit file to manage the FastAPI process. This ensures the editor starts on boot and restarts if it crashes.
+Create a `systemd` unit file to manage the FastAPI process.
 
 Create the file `/etc/systemd/system/sbs-editor.service`:
 
@@ -46,23 +49,21 @@ Description=SBS Editor - FastAPI Backend
 After=network.target
 
 [Service]
-# Using the dedicated 'sentry' user
+# Run as the restricted 'sentry' user
 User=sentry
 Group=sentry
 WorkingDirectory=/var/www/sbs-ext
+# Ensure Python can find our source code
 Environment="PYTHONPATH=/var/www/sbs-ext/src"
-# Use uv run to ensure the correct virtual environment is used
-# Or point directly to the venv: /var/www/sbs-ext/.venv/bin/uvicorn
-ExecStart=/usr/bin/uv run uvicorn sbs_editor.main:app --host 127.0.0.1 --port 8080 --workers 4
+# Point directly to the python interpreter inside the virtual environment.
+# Using 'python -m uvicorn' is more robust than calling the wrapper script
+# because wrapper scripts often have hardcoded shebang paths that break if moved.
+ExecStart=/var/www/sbs-ext/.venv/bin/python -m uvicorn sbs_editor.main:app --host 127.0.0.1 --port 8080 --workers 4
 Restart=always
-# In production, we don't pass 'reload=True' in the code. 
-# main.py handles this via 'if __name__ == "__main__":' but uvicorn command line overrides it.
 
 [Install]
 WantedBy=multi-user.target
 ```
-
-**Note:** If you use `uv run`, ensure the system-wide `uv` binary is at `/usr/bin/uv`.
 
 Enable and start the service:
 ```bash
