@@ -134,6 +134,40 @@ coords: false
         html = self.renderer.render(text)
         self.assertIn('coords="false"', html)
 
+    def test_widget_with_separator_but_no_config(self) -> None:
+        # Chess
+        chess_text = """
+```sbs-chess
+---
+1. e4 e5
+```
+"""
+        chess_html = self.renderer.render(chess_text)
+        self.assertIn("<sbs-chess", chess_html)
+        self.assertIn("1. e4 e5", chess_html)
+
+        # Bridge
+        bridge_text = """
+```sbs-bridge
+---
+[Deal "N:AKQJ.AKQJ.AK.AQJ 9876.9876.8.K982 5432.5432.54.754 T.T.QJT97632.T63"]
+```
+"""
+        bridge_html = self.renderer.render(bridge_text)
+        self.assertIn("<sbs-bridge", bridge_html)
+        self.assertIn("AKQJ.AKQJ.AK.AQJ", bridge_html)
+
+        # Go
+        go_text = """
+```sbs-go
+---
+(;SZ[9])
+```
+"""
+        go_html = self.renderer.render(go_text)
+        self.assertIn("<sbs-go", go_html)
+        self.assertIn("(;SZ[9])", go_html)
+
     def test_image_attributes_apply_width_and_alignment(self) -> None:
         text = "![beautiful pic](https://images.com/pic.jpg){ align=center, width=300 }"
         html = self.renderer.render(text)

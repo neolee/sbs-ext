@@ -43,6 +43,8 @@ class ChessBlock:
             # Try to parse the first part as YAML
             try:
                 config = yaml.safe_load(config_part)
+                if config is None:
+                    config = {}
                 if isinstance(config, dict):
                     # Prioritize 'pgn' as the key for consistency
                     config["pgn"] = pgn_part
