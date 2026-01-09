@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBS Editor</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body, html {
             margin: 0;
@@ -89,6 +90,27 @@
         .btn-secondary:hover {
             background: #a6a9ad;
         }
+        .btn-icon {
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            color: #606266;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-icon:hover {
+            background: #f5f7fa;
+            color: #409eff;
+            border-color: #c6e2ff;
+        }
+        .btn-icon svg {
+            width: 18px;
+            height: 18px;
+        }
         select {
             padding: 5px;
             border-radius: 4px;
@@ -127,11 +149,24 @@
                 </select>
 
                 <div class="spacer"></div>
-                <button class="btn btn-secondary" id="export-btn">Download</button>
+                
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-icon" id="import-btn" title="Import Markdown">
+                        <i data-lucide="file-up"></i>
+                    </button>
+                    <input type="file" id="import-input" accept=".md" style="display: none">
+                    
+                    <button class="btn-icon" id="export-btn" title="Export Markdown">
+                        <i data-lucide="file-down"></i>
+                    </button>
+
+                    <button class="btn-icon" id="render-btn" title="Render">
+                        <i data-lucide="play"></i>
+                    </button>
+                </div>
             </div>
             <div class="toolbar-right">
                 <div class="spacer"></div>
-                <button class="btn" id="render-btn">Render</button>
             </div>
         </div>
         <div class="main">
@@ -156,6 +191,8 @@
         const themeSelect = document.getElementById('theme-select');
         const widgetInsert = document.getElementById('widget-insert');
         const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        const importInput = document.getElementById('import-input');
 
         const initialDoc = `# SBS Editor Demo
 
@@ -293,6 +330,30 @@ interactive: true
             a.click();
             URL.revokeObjectURL(url);
         });
+
+        importBtn.addEventListener('click', () => {
+            importInput.click();
+        });
+
+        importInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                view.dispatch({
+                    changes: { from: 0, to: view.state.doc.length, insert: content }
+                });
+                render();
+            };
+            reader.readAsText(file);
+            // Reset input so the same file can be imported again if needed
+            importInput.value = '';
+        });
+
+        // Initialize Lucide icons
+        lucide.createIcons();
 
         // Initial render
         render();
