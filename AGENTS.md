@@ -148,7 +148,7 @@ This document serves as a persistent context file for AI agents working on the `
 - Shipped the first version of the **SBS Editor**, a web-based live preview tool for SBS Markdown.
 - Built with **FastAPI** (Backend) and **CodeMirror 6** (Frontend), featuring a dual-pane layout.
 - Preview pane uses `iframe.srcdoc` to ensure reliable loading of Web Component widgets and styles.
-- Integrated a robust SGF parser (**smartgame.js**) into the Go widget, significantly improving compatibility with real-world game records.
+- Integrated a robust SGF parser (`smartgame.js`) into the Go widget, significantly improving compatibility with real-world game records.
 - Refined the Bridge widget renderer to support both `data` and `pbn` keys, matching existing Markdown fixtures.
 - Added a management script (`editor.sh`) for starting/stopping the editor service with background logging.
 - Verified editor rendering parity against all `tests/markdown/` baseline fixtures.
