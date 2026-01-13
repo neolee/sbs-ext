@@ -11,3 +11,10 @@ dependencies = [
     "pyyaml",
     "uvicorn",
 ]
+
+[tool.ruff.lint]
+ignore = ["E402", "E701", "E731", "F403", "F405"]
+
+[tool.ty.src]
+include = ["src", "tests"]
+exclude = [".venv", "prototype", "widgets", "dist"]
